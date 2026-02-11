@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
+from corsheaders.defaults import default_headers
+
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,16 +62,25 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    'corsheaders.middleware.CorsMiddleware',
 ]
 if DEVELOPMENT:
-    CORS_ALLOW_ALL_ORIGINS = True
-    
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOW_CREDENTIALS = True
+
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+    ]    
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
         # "http://localhost:3000", example production url
     ]
+
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "X-Portfolio-Mode",
+]
+
     
 
 
@@ -117,6 +130,16 @@ if DEVELOPMENT:
             'PORT': os.getenv('DEV_DB_PORT', '3306'),
         }
     }
+
+    SIMPLE_JWT = {
+        "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),      # default is 5 minutes
+        "REFRESH_TOKEN_LIFETIME": timedelta(days=7),       # default is 1 day
+
+        "ROTATE_REFRESH_TOKENS": False,
+        "BLACKLIST_AFTER_ROTATION": True,
+
+        "AUTH_HEADER_TYPES": ("Bearer",),
+    }
 else:
     DATABASES = {
         'default': {
@@ -127,6 +150,16 @@ else:
             'HOST': os.getenv('DB_HOST'),
             'PORT': os.getenv('DB_PORT', '3306'),
         }
+    }
+
+    SIMPLE_JWT = {
+        "ACCESS_TOKEN_LIFETIME": timedelta(hours=15),      # default is 5 minutes
+        "REFRESH_TOKEN_LIFETIME": timedelta(days=1),       # default is 1 day
+
+        "ROTATE_REFRESH_TOKENS": False,
+        "BLACKLIST_AFTER_ROTATION": True,
+
+        "AUTH_HEADER_TYPES": ("Bearer",),
     }
 
 
@@ -147,6 +180,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
 
 
 # Internationalization

@@ -1,18 +1,11 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from api.models.user import Profile
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ['portfolio_value', 'risk_level'] # to be determined
+from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,3 +25,5 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', ''),
         )
         return user
+
+
