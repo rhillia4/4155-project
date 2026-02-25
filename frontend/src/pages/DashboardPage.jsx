@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Box, List, Typography } from "@mui/material";
 import PortfolioLineGraph from "../components/charts/PortfolioLineGraph.jsx";
 import { usePortfolios } from "../hooks/usePortfolios.js";
-import StockIncomeGraph from "../components/charts/StockIncomeGraph.jsx";
 
 function DashboardPage() {
   const { portfolios, fetchPortfolios } = usePortfolios();

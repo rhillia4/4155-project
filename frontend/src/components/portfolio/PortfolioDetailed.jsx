@@ -7,6 +7,7 @@ import { usePortfolio } from '../../hooks/usePortfolio.js';
 import { useTransactions } from '../../hooks/useTransactions.js';
 import axios from 'axios';
 import Transaction from '../trading/Transaction.jsx';
+import StockIncomeGraph from './StockIncomeGraph.jsx';
 function PortfolioDetailed({ portfolio }) {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -44,6 +45,7 @@ function PortfolioDetailed({ portfolio }) {
               sx={{ width: '100%', height: 300 }} // Chart scales to card width
           />
       )}
+      <StockIncomeGraph portfolio={portfolio} />
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2, justifyContent: 'space-between' }}>
         <Typography variant="h5" component="div" sx={{ mt: 2, textAlign: 'center' }}>
             {portfolio.name}
