@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, List, Typography } from "@mui/material";
 import PortfolioLineGraph from "../components/charts/PortfolioLineGraph.jsx";
 import { usePortfolios } from "../hooks/usePortfolios.js";
+import StockIncomeGraph from "../components/charts/StockIncomeGraph.jsx";
 
 function DashboardPage() {
   const { portfolios, fetchPortfolios } = usePortfolios();
@@ -19,6 +20,7 @@ function DashboardPage() {
       <Typography variant="body1">
         Welcome to your dashboard!
       </Typography>
+
       <List sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 2, mt: 2 }}>
         {portfolios && portfolios.length > 0 ? (
           portfolios.map((portfolio) => (

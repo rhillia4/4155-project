@@ -6,3 +6,7 @@ venv
 db.sqlite3
 
 idea.txt
+
+__pycache__/
+*.py[cod]
+backend/**/__pycache__/
