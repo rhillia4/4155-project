@@ -1,6 +1,8 @@
 from django.db import transaction
 from decimal import Decimal
 from .models import Portfolio, Holding, Transaction
+from django.db.models import Sum
+from .models.records import BudgetEntry
 
 @transaction.atomic
 def execute_buy(portfolio: Portfolio, asset, shares: Decimal, price: Decimal):
@@ -35,3 +37,14 @@ def execute_buy(portfolio: Portfolio, asset, shares: Decimal, price: Decimal):
         shares=shares,
         price=price
     )
+#budget section
+
+def get_budget_summary(user):
+    """
+    Calculates total income and total expenses for the user.
+    """
+    stats = BudgetEntry.objects.filter(user=user).values('transaction_type').annotate(
+        total=Sum('amount')
+    )
+    # Formats: {'INCOME': 5000.00, 'EXPENSE': 3200.00}
+    return {item['transaction_type']: item['total'] for item in stats}

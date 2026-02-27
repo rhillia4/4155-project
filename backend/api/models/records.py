@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from .brokerage import Portfolio
-
+from django.conf import settings 
 
 class Asset(models.Model):
     symbol = models.CharField(max_length=10, unique=True)
