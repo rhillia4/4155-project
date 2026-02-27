@@ -14,7 +14,7 @@ function PortfolioDetailed({ portfolio }) {
   const navigate = useNavigate();
   const { setPortfolio } = usePortfolioContext();
   const { deletePortfolio } = usePortfolio();
-  const { transactions, getTransactions } = useTransactions();
+  const { transactions, getTransactions } = useTransactions(); 
   const [xaxisData, setXAxisData] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [open, setOpen] = useState(false);
@@ -35,17 +35,24 @@ function PortfolioDetailed({ portfolio }) {
 
   return (
     <Box sx={{ width: '100%', height: '100%' }}> {/* Full width & height of parent */}
-    {/* Line Chart */}
-      {!loading && (
-          <LineChart 
-              hideLegend
-              xAxis={[{ data: xaxisData, label: 'Date' }]}
-              yAxis={ [{ label: 'Value (USD)' }] }
-              series={[{ data: seriesData, label: 'Portfolio Value' }]}
-              sx={{ width: '100%', height: 300 }} // Chart scales to card width
-          />
-      )}
-      <StockIncomeGraph portfolio={portfolio} />
+      
+      <Box sx={{ display: 'flex', gap: 5, mb: 3, p: 2, borderBottom: '1px solid #eee' }}>
+        <Box>
+          <Typography variant="caption" color="textSecondary">YOUR INVESTMENT</Typography>
+          <Typography variant="h6">$0.00</Typography>
+        </Box>
+        <Box>
+          <Typography variant="caption" color="textSecondary">CURRENT VALUE</Typography>
+          <Typography variant="h6">$0.00</Typography>
+        </Box>
+        <Box>
+          <Typography variant="caption" color="textSecondary">ROI</Typography>
+          <Typography variant="h6" sx={{ color: 'green' }}>0.00%</Typography>
+        </Box>
+      </Box>
+
+      <StockIncomeGraph transactions={transactions} />
+     
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2, justifyContent: 'space-between' }}>
         <Typography variant="h5" component="div" sx={{ mt: 2, textAlign: 'center' }}>
             {portfolio.name}
@@ -76,6 +83,7 @@ function PortfolioDetailed({ portfolio }) {
         open={open}
         onClose={() => {
           setOpen(false);
+          getTransactions(portfolio.id);
         }}
       />
 
