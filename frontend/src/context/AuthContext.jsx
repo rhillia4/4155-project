@@ -56,6 +56,18 @@ export const AuthProvider = ({ children }) => {
     navigate("/");
   };
 
+  const register = async (username, firstName, lastName, email, password) => {
+    await axios.post(`${API_URL}/register/`, {
+      username,
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password,
+    });
+
+    await login(username, password);
+  };
+
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -69,6 +81,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         login,
+        register,
         logout,
         isAuthenticated: !!user,
         loading,

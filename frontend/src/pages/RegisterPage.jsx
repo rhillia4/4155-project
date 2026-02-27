@@ -35,7 +35,7 @@ function RegisterPage() {
         Sign Up
       </Typography>
 
-      <Box onSubmit={handleSubmit} sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
         <FormControl>
           <InputLabel htmlFor="username">Username</InputLabel>
           <Input

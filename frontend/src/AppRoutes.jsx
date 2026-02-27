@@ -7,7 +7,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 
 import DashboardPage from "./pages/DashboardPage.jsx";
-import { PortfolioProvider } from "./context/portfolioContext.jsx";
+import { PortfolioProvider } from "./context/PortfolioContext.jsx";
 
 // import GamePage from "./pages/GamePage.jsx";
 // import GameLobbyPage from "./pages/GameLobbyPage.jsx";
