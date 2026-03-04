@@ -117,7 +117,7 @@ async def fetch_dataset(tasks, session, max_concurrent):
 async def generic_load_script(start_time, data, http_errors, pool):
     all_errors = {"http_errors": http_errors or ["No errors"]}
     loader_metadata = {
-        # "api_asset": {"insertFunc": "insert_asset", "rows" : []},
+        "api_asset": {"insertFunc": "insert_asset", "rows" : []},
         "api_stockprice": {"insertFunc": "insert_stock_price_data", "rows" : []},
     }    
 
@@ -188,7 +188,7 @@ async def load_all_stocks(to_date=(datetime.now() - timedelta(days= 1)).strftime
 
 
     tasks = []
-    # tasks.append(("api_asset", f"{FMP_API_BASE_URL}stable/sp500-constituent?apikey={FMP_API_KEY}", process_json))
+    tasks.append(("api_asset", f"{FMP_API_BASE_URL}stable/sp500-constituent?apikey={FMP_API_KEY}", process_json))
     for symbol in symbols:
         tasks.append(("api_stockprice", get_historical_price_url(symbol, to_date, from_date), process_json))
 
@@ -223,7 +223,7 @@ async def load_all_stocks(to_date=(datetime.now() - timedelta(days= 1)).strftime
     
 
 async def daily():
-     await load_all_stocks()
+     await load_all_stocks(to_date=(datetime.now()).strftime("%Y-%m-%d"), from_date=(datetime.now() - timedelta(days= 1)).strftime("%Y-%m-%d"))
 
 async def all_data():
     all_errors, all_truncated_cols, all_out_of_range_cols = await load_all_stocks(to_date=None, from_date=None)
