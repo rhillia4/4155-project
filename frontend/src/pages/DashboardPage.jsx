@@ -1,37 +1,76 @@
-import React, { useEffect, useState } from "react";
-import { Box, List, Typography } from "@mui/material";
-import PortfolioLineGraph from "../components/charts/PortfolioLineGraph.jsx";
-import { usePortfolios } from "../hooks/usePortfolios.js";
+import React from "react";
+import { Box, Typography } from "@mui/material";
+import BudgetPieChart from "../components/charts/BudgetPieChart.jsx";
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-function DashboardPage() {
-  const { portfolios, fetchPortfolios } = usePortfolios();
-    
-  useEffect(() => {
-    fetchPortfolios();
-  }, []);
+const categories = ["Housing", "Utilities", "Transportation", "Insurance", "Food", "Savings", "Other"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28CFD", "#FF6B6B", "#8884D8"];
 
-  console.log("Portfolios:", portfolios, "hello world"); // Debugging log
+function DashboardPage({ transactions = [], budgetLimits = {}, monthlyIncome = 0 }) {
+  // Compute spent per category
+  const categorySpent = {};
+  categories.forEach((cat) => {
+    categorySpent[cat] = transactions
+      .filter((t) => t.category === cat)
+      .reduce((sum, t) => sum + t.amount, 0);
+  });
+
+  // Category Limits data for horizontal bar chart
+  const barData = categories.map((cat) => ({
+    category: cat,
+    spent: categorySpent[cat],
+    limit: budgetLimits ? budgetLimits[cat] || 0 : 0,
+  }));
+
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard
-      </Typography>
-      <Typography variant="body1">
-        Welcome to your dashboard!
-      </Typography>
+    <Box sx={{ p: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
+      
+      {/* Left Column */}
+      <Box sx={{ flex: 1, minWidth: 400, display: "flex", flexDirection: "column", gap: 4 }}>
+        
+        {/* Budget Pie Chart */}
+        <Box sx={{ border: "1px solid #ccc", borderRadius: 2, p: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Spending Breakdown
+          </Typography>
+          <BudgetPieChart budget={{ transactions }} />
+        </Box>
 
-      <List sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-        {portfolios && portfolios.length > 0 ? (
-          portfolios.map((portfolio) => (
-            <PortfolioLineGraph key={portfolio.id} portfolio={portfolio} />
-          ))
-        ) : (
-        <Typography variant="body2">
-          No portfolios found. Please create one to get started.
-        </Typography>
-      )}
-      </List>
+        {/* Category Limits Horizontal Bar Chart */}
+        <Box sx={{ border: "1px solid #ccc", borderRadius: 2, p: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Category Limits
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              layout="vertical"
+              data={barData}
+              margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis dataKey="category" type="category" />
+              <Tooltip />
+              <Bar dataKey="spent" maxBarSize={20}>
+                {barData.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={entry.spent > entry.limit ? "#FF4136" : "#82ca9d"} // red if overspent
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+
+      </Box>
+
+      {/* Right Column: can add more charts or summary info later */}
+      <Box sx={{ flex: 1, minWidth: 400 }}>
+        {/* Placeholder or additional info */}
+      </Box>
     </Box>
   );
 }
+
 export default DashboardPage;

@@ -18,7 +18,7 @@ function Navbar() {
                 {user ? (
                     <>
                         <Box sx={{ mr: 8, gap: 2, display: 'flex', alignItems: 'center' }}>
-                            <Button component={Link} to="/" onClick={()=>{
+                            <Button component={Link} to="/dashboard" onClick={()=>{
                                 requestAnimationFrame(() => {
                                     setPortfolio(null);
                                 });
@@ -32,6 +32,13 @@ function Navbar() {
                             }}>
                                 Portfolios
                             </Button>
+                            <Button
+                                component={Link} to="/budget" onClick={() => {
+                                requestAnimationFrame(() => setPortfolio(null));
+                                }}
+                                >
+                                Budget
+                            </Button>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             <Typography variant="body1" sx={{marginRight: 2}}>
@@ -41,7 +48,9 @@ function Navbar() {
                                 Logout
                             </Button>
                         </Box>
+                        
                     </>
+                    
                 ) : (
                     <Button component={Link} to="/login">
                         Login
