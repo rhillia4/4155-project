@@ -6,7 +6,7 @@ module.exports = {
       name: "backend",
       cwd: "/home/ec2-user/4155-project/backend",
       script: "/home/ec2-user/4155-project/backend/venv/bin/gunicorn",
-      args: "project.wsgi:application --bind 127.0.0.1:8000 --workers 3 --timeout 60 --access-logfile - --error-logfile -",
+      args: "backend.wsgi:application --bind 127.0.0.1:8000 --workers 3 --timeout 60 --access-logfile - --error-logfile -",
       interpreter: "none",
       exec_mode: "fork",
       autorestart: true,
