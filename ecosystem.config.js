@@ -12,7 +12,7 @@ module.exports = {
       autorestart: true,
       max_memory_restart: "500M",
       env: {
-        DJANGO_SETTINGS_MODULE: "project.settings",
+        DJANGO_SETTINGS_MODULE: "backend.settings",
         PYTHONUNBUFFERED: "1"
       }
     },
