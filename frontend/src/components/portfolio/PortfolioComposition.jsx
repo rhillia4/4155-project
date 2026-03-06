@@ -13,8 +13,8 @@ function PortfolioComposition({ transactions }) {
   }, [transactions]);
 
   return (
-    <Paper sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider',height: '350' }}>
-      <Typography variant="h6" color="white">Portfolio Composition</Typography>
+    <Paper sx={{ p: 2, borderRadius: 2, height: '100%' }}>
+      <Typography variant="caption" color="textSecondary">PORTFOLIO COMPOSITION</Typography>
       <Box sx={{ height: 250, mt: 2 }}>
         <PieChart series={[{ data: chartData, innerRadius: 30, outerRadius: 80 }]} />
       </Box>

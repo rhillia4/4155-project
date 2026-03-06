@@ -23,7 +23,7 @@ function StockIncomeGraph({ transactions }) {
     }, [transactions]); // Only runs when the data actually changes
 
     return (
-    <Paper sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: 350, display: 'flex', flexDirection: 'column' }}>
+    <Paper sx={{ p: 2, borderRadius: 2, height: 350, display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
         Portfolio History
       </Typography>

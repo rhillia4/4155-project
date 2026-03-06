@@ -10,15 +10,10 @@ function PortfolioHeader({ transactions }) {
     return { investment, positions };
   }, [transactions]);
 
-  const cardStyle = { p: 2, textAlign: 'center', borderRadius: 2, border: '1px solid', borderColor: 'divider'};
+  const cardStyle = { p: 2, textAlign: 'center', borderRadius: 2 };
 
   return (
     <Grid container spacing={2} sx={{ mb: 3 }}>
-      <Grid item xs={12} sm={2.4}><Paper sx={cardStyle}>
-        <Typography variant="caption" color="textSecondary">PORTFOLIO VALUE</Typography>
-        {/* just matching investment until live prices are added */}
-        <Typography variant="h6">${stats.investment.toLocaleString()}</Typography>
-      </Paper></Grid>
       <Grid item xs={3}><Paper sx={cardStyle}>
         <Typography variant="caption" color="textSecondary">YOUR INVESTMENT</Typography>
         <Typography variant="h6">${stats.investment.toLocaleString()}</Typography>
