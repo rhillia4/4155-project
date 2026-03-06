@@ -21,7 +21,7 @@ function RegisterPage() {
     try {
       await register(username, firstName, lastName, email, password);
     } catch (err) {
-      setError("Registration failed");
+      setError(err.response?.data?.detail || "Registration failed");
     }
   };
 
