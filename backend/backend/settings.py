@@ -73,9 +73,14 @@ if DEVELOPMENT:
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        # "http://localhost:3000", example production url
+        "http://budgetandportfoliotrackingtool.com",
+        "https://budgetandportfoliotrackingtool.com",
     ]
 
+    CSRF_TRUSTED_ORIGINS = [
+        "http://budgetandportfoliotrackingtool.com",
+        "https://budgetandportfoliotrackingtool.com",
+    ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "X-Portfolio-Mode",
