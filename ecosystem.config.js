@@ -32,13 +32,11 @@ module.exports = {
     {
       name: "frontend",
       cwd: "/home/ec2-user/4155-project/frontend",
-      script: "npx",                   // Use npx to run local node module
-      args: "serve -s dist -l 3000",
-      interpreter: "none",
+      script: "./start-frontend.sh",
+      interpreter: "bash",
       autorestart: true,
       env: {
-        NODE_ENV: "production",
-        PATH: "/usr/bin:/usr/local/bin:/bin"  // ensures Node is found
+        NODE_ENV: "production"
       }
     }
 
