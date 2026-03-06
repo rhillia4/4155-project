@@ -44,21 +44,21 @@ function DashboardPage({ transactions = [], budgetLimits = {}, monthlyIncome = 0
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
               layout="vertical"
-              data={barData}
+              data={barData.map((d) => ({
+                ...d,
+                underLimit: Math.min(d.spent, d.limit),
+                overLimit: d.spent > d.limit ? d.spent - d.limit : 0,
+              }))}
               margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
               <YAxis dataKey="category" type="category" />
               <Tooltip />
-              <Bar dataKey="spent" maxBarSize={20}>
-                {barData.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={entry.spent > entry.limit ? "#FF4136" : "#82ca9d"} // red if overspent
-                  />
-                ))}
-              </Bar>
+              {/* Green portion (under the limit) */}
+              <Bar dataKey="underLimit" stackId="a" fill="#82ca9d" maxBarSize={20} />
+              {/* Red portion (overspend) */}
+              <Bar dataKey="overLimit" stackId="a" fill="#FF4136" maxBarSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </Box>
