@@ -158,7 +158,7 @@ else:
     }
 
     SIMPLE_JWT = {
-        "ACCESS_TOKEN_LIFETIME": timedelta(hours=15),      # default is 5 minutes
+        "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),      # default is 5 minutes
         "REFRESH_TOKEN_LIFETIME": timedelta(days=1),       # default is 1 day
 
         "ROTATE_REFRESH_TOKENS": False,
