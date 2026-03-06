@@ -35,7 +35,10 @@ module.exports = {
       script: "/usr/bin/serve",
       args: "-s dist -l 3000",
       interpreter: "none",
-      autorestart: true
+      autorestart: true,
+      env: {
+        PATH: "/usr/local/bin:/usr/bin:/bin"
+      }
     }
 
   ]
