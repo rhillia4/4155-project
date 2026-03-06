@@ -4,8 +4,7 @@ import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
+  baseURL: API_BASE_URL+"/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -50,13 +49,13 @@ api.interceptors.response.use(
 // Auth
 
 export const login = (data) =>
-  api.post("/auth/login/", data);
+  api.post("/login/", data);
 
 export const register = (data) =>
-  api.post("/auth/register/", data);
+  api.post("/register/", data);
 
-export const logout = () =>
-  api.post("/auth/logout/");
+export const fetchUser = () =>
+  api.get("/user/");
 
 // Portfolio
 export const getPortfolioList = () =>
