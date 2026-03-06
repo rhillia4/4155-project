@@ -32,7 +32,7 @@ module.exports = {
     {
       name: "frontend",
       cwd: "/home/ec2-user/4155-project/frontend",
-      script: "serve",
+      script: "/usr/bin/serve",
       args: "-s dist -l 3000",
       interpreter: "none",
       autorestart: true
