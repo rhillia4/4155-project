@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
 
 function StockIncomeGraph({ transactions }) {
     const [xaxisData, setXAxisData] = useState([]);
@@ -23,22 +23,27 @@ function StockIncomeGraph({ transactions }) {
     }, [transactions]); // Only runs when the data actually changes
 
     return (
-        <Box sx={{ width: '100%', height: 300 }}>
-            {seriesData.length > 0 ? (
-                <LineChart 
-                    hideLegend
-                    xAxis={[{ data: xaxisData, label: 'Date', scaleType: 'point' }]}
-                    yAxis={[{ label: 'Change (USD)' }]}
-                    series={[{ data: seriesData, label: 'Daily Profit/Loss', area: true }]}
-                    sx={{ width: '100%', height: '100%' }}
-                />
-            ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                    <Typography color="textSecondary">No transaction history available</Typography>
-                </Box>
-            )}
-        </Box>
-    );
+    <Paper sx={{ p: 2, borderRadius: 2, height: 350, display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+        Portfolio History
+      </Typography>
+
+      <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+        {seriesData.length > 0 ? (
+          <LineChart
+            hideLegend
+            xAxis={[{ data: xaxisData, scaleType: 'point' }]}
+            series={[{ data: seriesData, area: true }]}
+            sx={{ width: '100%', height: '100%' }}
+          />
+        ) : (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Typography color="textSecondary">No performance data yet</Typography>
+          </Box>
+        )}
+      </Box>
+    </Paper>
+  );
 }
 
 export default StockIncomeGraph;
