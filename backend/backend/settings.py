@@ -31,7 +31,6 @@ DEVELOPMENT = os.getenv("DEVELOPMENT", "False").lower() == "true"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = DEVELOPMENT
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -71,6 +70,7 @@ if DEVELOPMENT:
         "http://localhost:5173",
     ]    
 else:
+    ALLOWED_HOSTS = ["budgetandportfoliotrackingtool.com", "www.budgetandportfoliotrackingtool.com"]
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
         "http://budgetandportfoliotrackingtool.com",
