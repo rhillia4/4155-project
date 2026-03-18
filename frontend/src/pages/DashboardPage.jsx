@@ -1,73 +1,127 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
+import { useBudget } from "../context/BudgetContext";
 import BudgetPieChart from "../components/charts/BudgetPieChart.jsx";
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-const categories = ["Housing", "Utilities", "Transportation", "Insurance", "Food", "Savings", "Other"];
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28CFD", "#FF6B6B", "#8884D8"];
+const categories = [
+  "Housing",
+  "Utilities",
+  "Transportation",
+  "Insurance",
+  "Food",
+  "Savings",
+  "Other",
+];
 
-function DashboardPage({ transactions = [], budgetLimits = {}, monthlyIncome = 0 }) {
-  // Compute spent per category
+function DashboardPage() {
+  const { transactions, budgetLimits } = useBudget();
+  const theme = useTheme();
+
+  if (!budgetLimits) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
+          No budget found. Please create one first.
+        </Typography>
+      </Box>
+    );
+  }
+
   const categorySpent = {};
   categories.forEach((cat) => {
     categorySpent[cat] = transactions
       .filter((t) => t.category === cat)
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
   });
 
-  // Category Limits data for horizontal bar chart
-  const barData = categories.map((cat) => ({
-    category: cat,
-    spent: categorySpent[cat],
-    limit: budgetLimits ? budgetLimits[cat] || 0 : 0,
-  }));
+  const barData = categories.map((cat) => {
+    const spent = categorySpent[cat] || 0;
+    const limit = budgetLimits?.[cat] || 0;
+
+    return {
+      category: cat,
+      under: Math.min(spent, limit),
+      over: spent > limit ? spent - limit : 0,
+    };
+  });
+
+  const cardStyle = {
+    borderRadius: 3,
+    p: 3,
+    background: "linear-gradient(145deg, #ffffff, #f8f3ee)",
+    boxShadow: "0 8px 20px rgba(111, 90, 69, 0.08)",
+    border: "1px solid rgba(111, 90, 69, 0.12)",
+  };
 
   return (
     <Box sx={{ p: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
-      
-      {/* Left Column */}
-      <Box sx={{ flex: 1, minWidth: 400, display: "flex", flexDirection: "column", gap: 4 }}>
-        
-        {/* Budget Pie Chart */}
-        <Box sx={{ border: "1px solid #ccc", borderRadius: 2, p: 2 }}>
-          <Typography variant="h6" gutterBottom>
+      {/* LEFT SIDE */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, minWidth: 420 }}>
+        <Box sx={cardStyle}>
+          <Typography
+            align="center"
+            variant="h6"
+            gutterBottom
+            sx={{ color: theme.palette.text.primary }}
+          >
             Spending Breakdown
           </Typography>
           <BudgetPieChart budget={{ transactions }} />
         </Box>
 
-        {/* Category Limits Horizontal Bar Chart */}
-        <Box sx={{ border: "1px solid #ccc", borderRadius: 2, p: 2 }}>
-          <Typography variant="h6" gutterBottom>
+        <Box sx={cardStyle}>
+          <Typography
+            align="center"
+            variant="h6"
+            gutterBottom
+            sx={{ color: theme.palette.text.primary }}
+          >
             Category Limits
           </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              layout="vertical"
-              data={barData.map((d) => ({
-                ...d,
-                underLimit: Math.min(d.spent, d.limit),
-                overLimit: d.spent > d.limit ? d.spent - d.limit : 0,
-              }))}
-              margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="category" type="category" />
+
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart layout="vertical" data={barData} margin={{ top: 8, right: 18, left: 12, bottom: 8 }}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(111, 90, 69, 0.12)"
+              />
+              <XAxis type="number" stroke={theme.palette.text.secondary} />
+              <YAxis
+                type="category"
+                dataKey="category"
+                width={120}
+                stroke={theme.palette.text.primary}
+                tickFormatter={(v) => (v.length > 9 ? `${v.slice(0, 9)}…` : v)}
+              />
               <Tooltip />
-              {/* Green portion (under the limit) */}
-              <Bar dataKey="underLimit" stackId="a" fill="#82ca9d" maxBarSize={20} />
-              {/* Red portion (overspend) */}
-              <Bar dataKey="overLimit" stackId="a" fill="#FF4136" maxBarSize={20} />
+              <Bar dataKey="under" stackId="a" fill="#8EAE7A" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="over" stackId="a" fill="#B65A4E" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Box>
-
       </Box>
 
-      {/* Right Column: can add more charts or summary info later */}
-      <Box sx={{ flex: 1, minWidth: 400 }}>
-        {/* Placeholder or additional info */}
+      {/* RIGHT SIDE */}
+      <Box sx={{ flex: 1, minWidth: 420, ...cardStyle }}>
+        <Typography
+          align="center"
+          variant="h6"
+          gutterBottom
+          sx={{ color: theme.palette.text.primary }}
+        >
+          Portfolio Overview
+        </Typography>
+
+        {/* RESERVED AREA FOR PORTFOLIO IMPLEMENTATION */}
       </Box>
     </Box>
   );

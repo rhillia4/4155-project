@@ -1,37 +1,55 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 const baseTheme = {
   typography: {
     fontFamily: "'Inter Tight', sans-serif",
   },
+  shape: {
+    borderRadius: 12,
+  },
   components: {
     MuiCssBaseline: {
-      styleOverrides: `
-        :root {
-          --topbar-height: 64px;
-          --topbar-height-mobile: 56px;
-        }
-      `,
+      styleOverrides: {
+        body: {
+          backgroundColor: "#F4F1EC",
+        },
+      },
     },
     MuiButton: {
       defaultProps: {
         disableRipple: true,
-        variant: 'contained',
-        textDecoration: "none",
+        variant: "contained",
       },
       styleOverrides: {
         root: {
-          whiteSpace: 'nowrap',
-          textTransform: 'none',
+          textTransform: "none",
+          borderRadius: 10,
+          fontWeight: 600,
+          boxShadow: "none",
+          paddingInline: "14px",
+          paddingBlock: "8px",
         },
-      },
-    },
-    MuiLink: {
-      styleOverrides: {
-        root: {
-          textDecoration: 'none',
-          '&:hover': {
-            textDecoration: 'underline',
+        contained: {
+          backgroundColor: "#6F5A45",
+          color: "#FFFFFF",
+          "&:hover": {
+            backgroundColor: "#5E4B3A",
+            boxShadow: "none",
+          },
+        },
+        outlined: {
+          borderColor: "rgba(111, 90, 69, 0.35)",
+          color: "#6F5A45",
+          backgroundColor: "transparent",
+          "&:hover": {
+            borderColor: "#6F5A45",
+            backgroundColor: "rgba(111, 90, 69, 0.05)",
+          },
+        },
+        text: {
+          color: "#6F5A45",
+          "&:hover": {
+            backgroundColor: "rgba(111, 90, 69, 0.05)",
           },
         },
       },
@@ -39,93 +57,120 @@ const baseTheme = {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          // AppBar background will be set per theme below
+          backgroundColor: "#F4F1EC",
+          color: "#1A1A1A",
+          boxShadow: "none",
+          borderBottom: "1px solid rgba(111, 90, 69, 0.16)",
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#FFFFFF",
+          "& fieldset": {
+            borderColor: "rgba(111, 90, 69, 0.2)",
+          },
+          "&:hover fieldset": {
+            borderColor: "rgba(111, 90, 69, 0.4)",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "#6F5A45",
+          },
         },
       },
     },
   },
 };
 
-// export const lightTheme = createTheme({
-//   ...baseTheme,
-//   palette: {
-//     mode: 'light',
-//     primary: {
-//       main: '#9AA6B2', // Sky Blue
-//       dark: '#BCCCDC', // Royal Blue
-//       light: '#D9EAFD', // Non-Photo Blue
-//     },
-//     secondary: {
-//       main: '#0e6ba8', // Bice Blue
-//       light: '#b0d4f1', // Powder Blue
-//     },
-//     background: {
-//       default: '#F8FAFC', // Alice Blue
-//       paper: '#D0CDD7',
-        
-//     },
-//     text: {
-//       primary: '#00072d', // Oxford Blue
-//       secondary: '#001c55', // Dark Blue
-//     },
-//     success: { main: '#7fff00' }, // Lime Green
-//     warning: { main: '#ff9f43' }, // Tangerine
-//     error: { main: '#ff6f61' }, // Coral
-//     info: { main: '#a6e1fa' }, // Non-Photo Blue
-//   },
-// });
-
-export const lightTheme = createTheme({
+export const softLightTheme = createTheme({
   ...baseTheme,
   palette: {
-    mode: 'dark',
+    mode: "light",
     primary: {
-      main: '#4da6ff', // Sky Blue
-      dark: '#0a2472', // Royal Blue
-      light: '#a6e1fa', // Non-Photo Blue
+      main: "#6F5A45",
+      dark: "#5E4B3A",
+      light: "#8A725A",
+      contrastText: "#FFFFFF",
     },
     secondary: {
-      main: '#0e6ba8', // Bice Blue
-      light: '#b0d4f1', // Powder Blue
+      main: "#DCCFC1",
+      dark: "#C7B6A4",
+      light: "#EEE6DD",
+      contrastText: "#1A1A1A",
     },
     background: {
-      default: '#00072d', // Oxford Blue
-      paper: '#001c55', // Dark Blue
+      default: "#F4F1EC",
+      paper: "#FFFFFF",
     },
     text: {
-      primary: '#f0f8ff', // Alice Blue
-      secondary: '#b0d4f1', // Powder Blue
+      primary: "#1A1A1A",
+      secondary: "#6F5A45",
     },
-    success: { main: '#7fff00' }, // Lime Green
-    warning: { main: '#ff9f43' }, // Tangerine
-    error: { main: '#ff6f61' }, // Coral
-    info: { main: '#a6e1fa' }, // Non-Photo Blue
+    divider: "rgba(111, 90, 69, 0.16)",
+    success: {
+      main: "#5E8B63",
+    },
+    warning: {
+      main: "#C28C4A",
+    },
+    error: {
+      main: "#B65A4E",
+    },
+    info: {
+      main: "#8A725A",
+    },
   },
 });
+
 export const darkTheme = createTheme({
   ...baseTheme,
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#4da6ff', // Sky Blue
-      dark: '#0a2472', // Royal Blue
-      light: '#a6e1fa', // Non-Photo Blue
+      main: "#CBB49D",
+      dark: "#A88C72",
+      light: "#E4D7CA",
+      contrastText: "#1A1A1A",
     },
     secondary: {
-      main: '#0e6ba8', // Bice Blue
-      light: '#b0d4f1', // Powder Blue
+      main: "#6F5A45",
+      light: "#8A725A",
+      dark: "#4E3F31",
+      contrastText: "#FFFFFF",
     },
     background: {
-      default: '#00072d', // Oxford Blue
-      paper: '#001c55', // Dark Blue
+      default: "#1F1A16",
+      paper: "#2A241F",
     },
     text: {
-      primary: '#f0f8ff', // Alice Blue
-      secondary: '#b0d4f1', // Powder Blue
+      primary: "#F5F0EA",
+      secondary: "#D7C8B8",
     },
-    success: { main: '#7fff00' }, // Lime Green
-    warning: { main: '#ff9f43' }, // Tangerine
-    error: { main: '#ff6f61' }, // Coral
-    info: { main: '#a6e1fa' }, // Non-Photo Blue
+    divider: "rgba(244, 241, 236, 0.12)",
+    success: {
+      main: "#7FB187",
+    },
+    warning: {
+      main: "#D19A57",
+    },
+    error: {
+      main: "#D47A70",
+    },
+    info: {
+      main: "#CBB49D",
+    },
   },
 });
