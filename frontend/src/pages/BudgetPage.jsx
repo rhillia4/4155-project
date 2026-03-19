@@ -140,7 +140,7 @@ function BudgetPage() {
   
     return categories.map((cat) => {
       const spent = transactions
-        .filter((t) => t.category === cat)
+        .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
   
       const allocated =
@@ -226,8 +226,8 @@ function BudgetPage() {
       {
         id: newDraft.id,
         date: newDraft.date,
-        item: capitalizeWords(newDraft.item),
-        category: capitalizeWords(newDraft.category),
+        item: String(newDraft.item).toUpperCase(),
+        category: String(newDraft.category).toUpperCase(),
         amount: parseFloat(newDraft.amount),
       },
       ...prev,
@@ -259,8 +259,8 @@ function BudgetPage() {
           ? {
               ...t,
               date: editDraft.date,
-              item: capitalizeWords(editDraft.item),
-              category: capitalizeWords(editDraft.category),
+              item: String(editDraft.item).toUpperCase(),
+              category: String(editDraft.category).toUpperCase(),
               amount: parseFloat(editDraft.amount),
             }
           : t

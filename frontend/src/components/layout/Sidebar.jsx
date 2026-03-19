@@ -1,9 +1,10 @@
-import { Box, Button, Menu, MenuItem, useTheme } from "@mui/material";
+import { Box, Button, Menu, MenuItem, Typography, useTheme } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useContext, useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { ThemeContext } from "../../context/ThemeContext.jsx";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 import vestlyLogo from "./VestlyImg.png";
 
 function Sidebar() {
@@ -30,14 +31,41 @@ function Sidebar() {
   const openMenu = (e) => setAnchorEl(e.currentTarget);
   const closeMenu = () => setAnchorEl(null);
 
+  const navButtonSx = {
+    justifyContent: open ? "flex-start" : "center",
+    minHeight: 46,
+    width: "100%",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "clip",
+    px: open ? 2 : 0,
+    borderRadius: 2,
+    transition: "background-color 0.2s ease, color 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(111, 90, 69, 0.06)",
+    },
+  };
+
+  const utilityButtonSx = {
+    justifyContent: open ? "flex-start" : "center",
+    minHeight: 42,
+    width: "100%",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "clip",
+    px: open ? 1.5 : 0,
+    borderRadius: 2,
+    transition: "background-color 0.2s ease, color 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(111, 90, 69, 0.06)",
+    },
+  };
+
   return (
     <Box
       sx={{
         width: open ? 240 : 76,
-        transition: "background-color 0.2s ease, color 0.2s ease",
-        "&:hover": {
-        backgroundColor: "rgba(111, 90, 69, 0.06)",
-        },
+        transition: "width 260ms ease",
         overflow: "hidden",
         background: "linear-gradient(180deg, #F1ECE5 0%, #E9DFD3 100%)",
         borderRight: `1px solid ${theme.palette.divider}`,
@@ -48,6 +76,7 @@ function Sidebar() {
         minHeight: "100%",
       }}
     >
+      {/* TOP */}
       <Box sx={{ p: 2 }}>
         <Button
           variant="outlined"
@@ -72,96 +101,104 @@ function Sidebar() {
                 to={item.path}
                 variant={active ? "contained" : "text"}
                 sx={{
-                  justifyContent: open ? "flex-start" : "center",
-                  minHeight: 46,
-                  width: "100%",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "clip",
-                  px: open ? 2 : 0,
-                  borderRadius: 2,
+                  ...navButtonSx,
+                  "&:hover": {
+                    backgroundColor: active
+                      ? undefined
+                      : "rgba(111, 90, 69, 0.06)",
+                  },
                 }}
               >
                 {open ? item.label : item.label[0]}
               </Button>
             );
           })}
-
-          {/* Settings */}
-          <Button
-            onClick={openMenu}
-            variant="text"
-            sx={{
-              justifyContent: open ? "flex-start" : "center",
-              minHeight: 46,
-              width: "100%",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "clip",
-              px: open ? 2 : 0,
-              borderRadius: 2,
-            }}
-            startIcon={open ? <SettingsIcon /> : null}
-          >
-            {open ? "Settings" : "⚙"}
-          </Button>
-
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-            <MenuItem
-              onClick={() => {
-                toggleDarkMode();
-                closeMenu();
-              }}
-            >
-              {darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            </MenuItem>
-          </Menu>
         </Box>
       </Box>
 
+      {/* BOTTOM UTILITY AREA */}
       <Box
         sx={{
           p: 2,
           borderTop: `1px solid ${theme.palette.divider}`,
-          display: "flex",
-          flexDirection: open ? "row" : "column",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 1.5,
+          background: "rgba(255,255,255,0.22)",
         }}
       >
         <Box
           sx={{
-            display: "flex",
+            border: "1px solid rgba(111, 90, 69, 0.12)",
+            borderRadius: 3,
+            p: 1.25,
+            backgroundColor: "rgba(255,255,255,0.45)",
+            boxShadow: "0 4px 10px rgba(111, 90, 69, 0.05)",
+            minHeight: open ? 108 : 120,
+            display: "grid",
+            gridTemplateColumns: open ? "1fr 1fr" : "1fr",
             alignItems: "center",
-            justifyContent: "center",
-            flex: 1,
-            width: "100%",
+            gap: 1.25,
           }}
         >
-          <img
-            src={vestlyLogo}
-            alt="Vestly Logo"
-            style={{
-              height: open ? 72 : 52,
-              width: "auto",
-              objectFit: "contain",
-              opacity: 0.95,
+          {/* LEFT: LOGO */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRight: open ? "1px solid rgba(111, 90, 69, 0.08)" : "none",
+              pr: open ? 1 : 0,
             }}
-          />
+          >
+            <img
+              src={vestlyLogo}
+              alt="Vestly Logo"
+              style={{
+                height: open ? 70 : 52,
+                width: "auto",
+                objectFit: "contain",
+                opacity: 0.96,
+              }}
+            />
+          </Box>
+
+          {/* RIGHT: SETTINGS + LOGOUT */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              onClick={openMenu}
+              variant="text"
+              sx={utilityButtonSx}
+              startIcon={open ? <SettingsIcon /> : null}
+            >
+              {open ? "Settings" : "⚙"}
+            </Button>
+
+            <Button
+              variant="text"
+              onClick={logout}
+              sx={utilityButtonSx}
+              startIcon={open ? <LogoutIcon /> : null}
+            >
+              {open ? "Logout" : "↩"}
+            </Button>
+          </Box>
         </Box>
 
-        <Button
-          variant="outlined"
-          onClick={logout}
-          sx={{
-            minWidth: open ? 92 : 40,
-            px: open ? 2 : 0,
-            width: open ? "auto" : "100%",
-          }}
-        >
-          {open ? "Logout" : "↩"}
-        </Button>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+          <MenuItem
+            onClick={() => {
+              toggleDarkMode();
+              closeMenu();
+            }}
+          >
+            {darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          </MenuItem>
+        </Menu>
       </Box>
     </Box>
   );

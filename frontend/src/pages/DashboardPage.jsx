@@ -14,12 +14,12 @@ import {
 
 const categories = [
   "Housing",
-  "Utilities",
   "Transportation",
   "Insurance",
   "Food",
-  "Savings",
+  "Utilities",
   "Other",
+  "Savings",
 ];
 
 function DashboardPage() {
@@ -39,7 +39,7 @@ function DashboardPage() {
   const categorySpent = {};
   categories.forEach((cat) => {
     categorySpent[cat] = transactions
-      .filter((t) => t.category === cat)
+      .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
   });
 
