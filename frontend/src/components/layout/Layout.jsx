@@ -2,34 +2,47 @@ import { Box, useTheme } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Header from "./Header.jsx";
 import Sidebar from "./Sidebar.jsx";
-
+ 
 function Layout() {
   const theme = useTheme();
-
+ 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
         backgroundColor: theme.palette.background.default,
       }}
     >
-      <Header />
-
-      <Box sx={{ display: "flex", minHeight: "calc(100vh - 120px)" }}>
-        <Sidebar />
-
+      {/* Header — fixed at top, never scrolls */}
+      <Box sx={{ flexShrink: 0, zIndex: 1100 }}>
+        <Header />
+      </Box>
+ 
+      {/* Body row — fills remaining height */}
+      <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+ 
+        {/* Sidebar — never scrolls */}
+        <Box sx={{ flexShrink: 0, zIndex: 1000 }}>
+          <Sidebar />
+        </Box>
+ 
+        {/* Main content — only this scrolls */}
         <Box
           sx={{
             flexGrow: 1,
             p: 3,
-            overflow: "auto",
+            overflowY: "auto",
           }}
         >
           <Outlet />
         </Box>
+ 
       </Box>
     </Box>
   );
 }
-
+ 
 export default Layout;
