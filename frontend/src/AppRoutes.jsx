@@ -5,6 +5,7 @@ import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
 import BudgetPage from "./pages/BudgetPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import { PortfolioProvider } from "./context/PortfolioContext.jsx";
@@ -25,6 +26,7 @@ function AppRoutes() {
 
       {/* Public Route */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
