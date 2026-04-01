@@ -13,7 +13,6 @@ import PortfolioComposition from './PortfolioComposition.jsx';
 
 function PortfolioDetailed({ portfolio }) {
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const { setPortfolio } = usePortfolioContext();
   const { deletePortfolio } = usePortfolio();
@@ -37,11 +36,11 @@ function PortfolioDetailed({ portfolio }) {
   }, [portfolio.id]);
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}> {/* Full width & height of parent */}
+    <Box sx={{ width: '100%', height: '100%'}}> {/* Full width & height of parent */}
       
       <PortfolioHeader transactions={transactions} />
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container sx={{ m: 4, gap: 2, width: '100%', display: 'flex', justifyContent: 'center' }}>
         <Grid item xs={12} md={8}> 
           <StockIncomeGraph transactions={transactions} />
         </Grid>

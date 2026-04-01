@@ -80,17 +80,8 @@ export const getTransactionsAPI = (id) =>
 export const createTransactionAPI = (id, data) =>
   api.post(`/portfolios/${id}/transactions/`, data);
 
+export const getSymbols = () => 
+  api.get("/assets/");
 
-// Game
-
-export const getLeaderboard = () =>
-  api.get("/game/leaderboard/");
-
-export const startGame = () =>
-  api.post("/game/start/");
-
-export const getGameState = () =>
-  api.get("/game/state/");
-
-
-
+export const getStockData = (symbol) =>
+  api.get(`/stock-price/${symbol}/`);

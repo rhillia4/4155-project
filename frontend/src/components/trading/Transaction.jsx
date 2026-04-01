@@ -3,6 +3,7 @@ import { Autocomplete, Box, TextField, Dialog, Typography, Button } from '@mui/m
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioContext } from '../../context/PortfolioContext.jsx';
 import { useTransactions } from '../../hooks/useTransactions.js';
+import { getSymbols, getStockData } from '../../services/api.js';
 import axios from 'axios';
 
 function Transaction({ portfolioId, open, onClose }) {
@@ -21,7 +22,7 @@ function Transaction({ portfolioId, open, onClose }) {
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`${API_BASE_URL}/assets/`)
+        getSymbols()
         .then((response) => {
             setSymbolList(response.data.sort((a, b) => a.symbol.localeCompare(b.symbol)));
         })
@@ -34,7 +35,7 @@ function Transaction({ portfolioId, open, onClose }) {
     useEffect(() => {
         setLoading(true);
         if (asset) {
-            axios.get(`${API_BASE_URL}/stock-price/${asset.symbol}/`)
+            getStockData(asset.symbol)
             .then((response) => {
                 setStockData(response.data);
             })
