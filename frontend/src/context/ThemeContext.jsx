@@ -1,6 +1,6 @@
 import React, { createContext, useMemo, useState } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { lightTheme, darkTheme } from "../theme/muiTheme.js";
+import { softLightTheme, darkTheme } from "../theme/muiTheme.js";
 
 export const ThemeContext = createContext({
   darkMode: false,
@@ -8,14 +8,21 @@ export const ThemeContext = createContext({
 });
 
 export function ThemeContextProvider({ children }) {
-  const [darkMode, setDarkMode] = useState(
-    window.matchMedia("(prefers-color-scheme: dark)").matches // auto-detect system preference
-  );
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
+  });
 
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      localStorage.setItem("darkMode", JSON.stringify(next));
+      return next;
+    });
+  };
 
   const theme = useMemo(
-    () => (darkMode ? darkTheme : lightTheme),
+    () => (darkMode ? darkTheme : softLightTheme),
     [darkMode]
   );
 

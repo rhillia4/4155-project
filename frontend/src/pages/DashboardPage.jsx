@@ -1,37 +1,158 @@
-import React, { useEffect, useState } from "react";
-import { Box, List, Typography } from "@mui/material";
-import PortfolioLineGraph from "../components/charts/PortfolioLineGraph.jsx";
-import { usePortfolios } from "../hooks/usePortfolios.js";
-
+import React from "react";
+import { Box, Typography, useTheme } from "@mui/material";
+import { useBudget } from "../context/BudgetContext";
+import BudgetPieChart from "../components/charts/BudgetPieChart.jsx";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+ 
+const categories = [
+  "Housing",
+  "Transportation",
+  "Insurance",
+  "Food",
+  "Utilities",
+  "Other",
+  "Savings",
+];
+ 
 function DashboardPage() {
-  const { portfolios, fetchPortfolios } = usePortfolios();
-    
-  useEffect(() => {
-    fetchPortfolios();
-  }, []);
-
-  console.log("Portfolios:", portfolios, "hello world"); // Debugging log
-  return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard
-      </Typography>
-      <Typography variant="body1">
-        Welcome to your dashboard!
-      </Typography>
-
-      <List sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-        {portfolios && portfolios.length > 0 ? (
-          portfolios.map((portfolio) => (
-            <PortfolioLineGraph key={portfolio.id} portfolio={portfolio} />
-          ))
-        ) : (
-        <Typography variant="body2">
-          No portfolios found. Please create one to get started.
+  const { transactions, budgetLimits } = useBudget();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+ 
+  if (!budgetLimits) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Typography variant="h5" sx={{ color: theme.palette.text.primary }}>
+          No budget found. Please create one first.
         </Typography>
-      )}
-      </List>
+      </Box>
+    );
+  }
+ 
+  const categorySpent = {};
+  categories.forEach((cat) => {
+    categorySpent[cat] = transactions
+      .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  });
+ 
+  const barData = categories.map((cat) => {
+    const spent = categorySpent[cat] || 0;
+    const limit = budgetLimits?.[cat] || 0;
+ 
+    return {
+      category: cat,
+      under: Math.min(spent, limit),
+      over: spent > limit ? spent - limit : 0,
+    };
+  });
+ 
+  const cardStyle = {
+    borderRadius: 3,
+    p: 3,
+    background: isDark
+      ? `linear-gradient(145deg, ${theme.palette.background.paper}, #221C17)`
+      : "linear-gradient(145deg, #ffffff, #f8f3ee)",
+    boxShadow: isDark
+      ? "0 8px 20px rgba(0, 0, 0, 0.3)"
+      : "0 8px 20px rgba(111, 90, 69, 0.08)",
+    border: isDark
+      ? "1px solid rgba(168, 134, 94, 0.14)"
+      : "1px solid rgba(111, 90, 69, 0.12)",
+  };
+ 
+  const gridStroke = isDark
+    ? "rgba(168, 134, 94, 0.12)"
+    : "rgba(111, 90, 69, 0.12)";
+ 
+  const barUnderFill = isDark ? "#7FB187" : "#8EAE7A";
+  const barOverFill = isDark ? "#D47A70" : "#B65A4E";
+ 
+  return (
+    <Box sx={{ p: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
+      {/* LEFT SIDE */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, minWidth: 420 }}>
+        <Box sx={cardStyle}>
+          <Typography
+            align="center"
+            variant="h6"
+            gutterBottom
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Spending Breakdown
+          </Typography>
+          <BudgetPieChart budget={{ transactions }} />
+        </Box>
+ 
+        <Box sx={cardStyle}>
+          <Typography
+            align="center"
+            variant="h6"
+            gutterBottom
+            sx={{ color: theme.palette.text.primary }}
+          >
+            Category Limits
+          </Typography>
+ 
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart
+              layout="vertical"
+              data={barData}
+              margin={{ top: 8, right: 18, left: 12, bottom: 8 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis
+                type="number"
+                stroke={theme.palette.text.secondary}
+                tick={{ fill: theme.palette.text.secondary }}
+              />
+              <YAxis
+                type="category"
+                dataKey="category"
+                width={120}
+                stroke={theme.palette.text.secondary}
+                tick={{ fill: theme.palette.text.primary }}
+                tickFormatter={(v) => (v.length > 9 ? `${v.slice(0, 9)}…` : v)}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: theme.palette.background.paper,
+                  border: `1px solid ${theme.palette.divider}`,
+                  color: theme.palette.text.primary,
+                }}
+                labelStyle={{ color: theme.palette.text.primary }}
+                itemStyle={{ color: theme.palette.text.secondary }}
+              />
+              <Bar dataKey="under" stackId="a" fill={barUnderFill} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="over" stackId="a" fill={barOverFill} radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+      </Box>
+ 
+      {/* RIGHT SIDE */}
+      <Box sx={{ flex: 1, minWidth: 420, ...cardStyle }}>
+        <Typography
+          align="center"
+          variant="h6"
+          gutterBottom
+          sx={{ color: theme.palette.text.primary }}
+        >
+          Portfolio Overview
+        </Typography>
+ 
+        {/* RESERVED AREA FOR PORTFOLIO IMPLEMENTATION */}
+      </Box>
     </Box>
   );
 }
+ 
 export default DashboardPage;
