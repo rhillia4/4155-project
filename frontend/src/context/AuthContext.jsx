@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { login as apiLogin, register as apiRegister, fetchUser as apiFetchUser } from "../services/api";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get(`${API_URL}/user/`);
+      const res = await apiFetchUser();
       setUser(res.data);
     } catch (err) {
       logout();
@@ -43,10 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (username, password) => {
-    const res = await axios.post(`${API_URL}/token/`, {
-      username,
-      password,
-    });
+    const res = await apiLogin({ username, password });
 
     localStorage.setItem("access_token", res.data.access);
     localStorage.setItem("refresh_token", res.data.refresh);
@@ -54,6 +51,12 @@ export const AuthProvider = ({ children }) => {
     setAuthToken(res.data.access);
     await fetchUser();
     navigate("/");
+  };
+
+  const register = async (username, firstName, lastName, email, password) => {
+    await apiRegister({ username, first_name: firstName, last_name: lastName, email, password });
+
+    await login(username, password);
   };
 
   const logout = () => {
@@ -69,6 +72,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         login,
+        register,
         logout,
         isAuthenticated: !!user,
         loading,

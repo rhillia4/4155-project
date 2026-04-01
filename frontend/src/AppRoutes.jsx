@@ -7,6 +7,12 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/LoginPage.jsx";
 import BudgetPage from "./pages/BudgetPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
+import { PortfolioProvider } from "./context/PortfolioContext.jsx";
+
+// import GamePage from "./pages/GamePage.jsx";
+// import GameLobbyPage from "./pages/GameLobbyPage.jsx";
+// import LeaderboardPage from "./pages/LeaderboardPage.jsx";
+
 import PortfolioPage from "./pages/PortfolioPage.jsx";
 
 function AppRoutes() {

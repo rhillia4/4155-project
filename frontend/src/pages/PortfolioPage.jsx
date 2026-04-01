@@ -17,7 +17,7 @@ function PortfolioPage() {
   }, [fetchPortfolios]);
 
   return (
-    <Box sx={{ p: 4, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ p: 4, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
       {/* Header */}
       <Box sx={{ mb: 4, width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" component="h1">Portfolio</Typography>
@@ -36,10 +36,10 @@ function PortfolioPage() {
       </Typography>
 
       {/* Portfolio Display */}
-      <Grid container spacing={2} justifyContent="center" sx={{ width: '100%' }}>
+      <Grid container spacing={2} justifyContent="center" sx={{ width: '80%' }}>
         {/* Selected portfolio */}
         {portfolio && (
-          <Grid sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Grid sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
             <PortfolioDetailed portfolio={portfolio} />
           </Grid>
         )}

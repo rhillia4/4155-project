@@ -4,8 +4,7 @@ import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
+  baseURL: API_BASE_URL + "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -27,21 +26,18 @@ api.interceptors.request.use(
     config.headers["X-Portfolio-Mode"] = mode;
 
     return config;
-  },
-  (error) => Promise.reject(error)
-);
+  });
 
 // Token Refresh / Errors
 
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  res => res,
+  async error => {
     if (error.response?.status === 401) {
-      // Optional: auto logout or refresh token
       localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       window.location.href = "/login";
     }
-
     return Promise.reject(error);
   }
 );
@@ -50,13 +46,13 @@ api.interceptors.response.use(
 // Auth
 
 export const login = (data) =>
-  api.post("/auth/login/", data);
+  api.post("/token/", data);
 
 export const register = (data) =>
-  api.post("/auth/register/", data);
+  api.post("/register/", data);
 
-export const logout = () =>
-  api.post("/auth/logout/");
+export const fetchUser = () =>
+  api.get("/user/");
 
 // Portfolio
 export const getPortfolioList = () =>
@@ -84,17 +80,8 @@ export const getTransactionsAPI = (id) =>
 export const createTransactionAPI = (id, data) =>
   api.post(`/portfolios/${id}/transactions/`, data);
 
+export const getSymbols = () => 
+  api.get("/assets/");
 
-// Game
-
-export const getLeaderboard = () =>
-  api.get("/game/leaderboard/");
-
-export const startGame = () =>
-  api.post("/game/start/");
-
-export const getGameState = () =>
-  api.get("/game/state/");
-
-
-
+export const getStockData = (symbol) =>
+  api.get(`/stock-price/${symbol}/`);

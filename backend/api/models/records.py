@@ -10,45 +10,35 @@ class Asset(models.Model):
 
     def __str__(self):
         return f"{self.symbol} - {self.name}"
-
+    
 class Holding(models.Model):
-    portfolio = models.ForeignKey(
-        Portfolio,
-        on_delete=models.CASCADE,
-        related_name="holdings"
-    )
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
-    shares = models.DecimalField(max_digits=15, decimal_places=4)
-    buy_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    current_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    portfolio = models.ForeignKey("Portfolio", on_delete=models.CASCADE, related_name="holdings")
+    asset = models.ForeignKey("Asset", on_delete=models.CASCADE)
+    shares = models.DecimalField(max_digits=15, decimal_places=4)  # original lot size
+    remaining_shares = models.DecimalField(max_digits=15, decimal_places=4, default=0)  # shares left after partial sells
+    buy_price = models.DecimalField(max_digits=15, decimal_places=2)
 
     class Meta:
-        unique_together = ("portfolio", "asset")
         indexes = [
-            models.Index(fields=["portfolio"]),
+            models.Index(fields=["portfolio", "asset"]),
         ]
+
     def __str__(self):
-        return f"{self.portfolio.name} - {self.asset.symbol}"
-
-
+        return f"{self.portfolio.name} - {self.asset.symbol} ({self.remaining_shares}/{self.shares} shares)"
+    
 class Transaction(models.Model):
     BUY = "BUY"
     SELL = "SELL"
-
     TRANSACTION_TYPE_CHOICES = [
         (BUY, "Buy"),
         (SELL, "Sell"),
     ]
 
-    portfolio = models.ForeignKey(
-        Portfolio,
-        on_delete=models.CASCADE,
-        related_name="transactions"
-    )
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    portfolio = models.ForeignKey("Portfolio", on_delete=models.CASCADE, related_name="transactions")
+    asset = models.ForeignKey("Asset", on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPE_CHOICES)
     shares = models.DecimalField(max_digits=15, decimal_places=4)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=15, decimal_places=2)
     executed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -57,8 +47,8 @@ class Transaction(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.transaction_type} {self.asset.symbol}"
-
+        return f"{self.transaction_type} {self.asset.symbol} {self.shares} shares @ {self.price}"
+    
 class StockPrice(models.Model):
     symbol = models.CharField(max_length=10, db_index=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)

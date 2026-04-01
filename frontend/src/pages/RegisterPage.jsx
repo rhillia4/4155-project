@@ -21,7 +21,7 @@ function RegisterPage() {
     try {
       await register(username, firstName, lastName, email, password);
     } catch (err) {
-      setError("Registration failed");
+      setError(err.response?.data?.detail || "Registration failed");
     }
   };
 
@@ -35,7 +35,7 @@ function RegisterPage() {
         Sign Up
       </Typography>
 
-      <Box onSubmit={handleSubmit} sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
         <FormControl>
           <InputLabel htmlFor="username">Username</InputLabel>
           <Input

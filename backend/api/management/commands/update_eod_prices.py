@@ -1,9 +1,9 @@
-from util import all_data
+from util import daily
 import asyncio
 
 
 def main():
-    asyncio.run(all_data())
+    asyncio.run(daily())
 
 if __name__ == "__main__":
     main()

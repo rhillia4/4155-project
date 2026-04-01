@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
-import { Box, Typography, Paper, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button } from '@mui/material';
+import { Box, Typography, Paper, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioContext } from '../../context/PortfolioContext.jsx';
 import { usePortfolio } from '../../hooks/usePortfolio.js';
@@ -8,13 +8,15 @@ import { useTransactions } from '../../hooks/useTransactions.js';
 import axios from 'axios';
 import Transaction from '../trading/Transaction.jsx';
 import StockIncomeGraph from './StockIncomeGraph.jsx';
+import PortfolioHeader from './PortfolioHeader.jsx';
+import PortfolioComposition from './PortfolioComposition.jsx';
+
 function PortfolioDetailed({ portfolio }) {
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const { setPortfolio } = usePortfolioContext();
   const { deletePortfolio } = usePortfolio();
-  const { transactions, getTransactions } = useTransactions();
+  const { transactions, getTransactions } = useTransactions(); 
   const [xaxisData, setXAxisData] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [open, setOpen] = useState(false);
@@ -34,18 +36,20 @@ function PortfolioDetailed({ portfolio }) {
   }, [portfolio.id]);
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}> {/* Full width & height of parent */}
-    {/* Line Chart */}
-      {!loading && (
-          <LineChart 
-              hideLegend
-              xAxis={[{ data: xaxisData, label: 'Date' }]}
-              yAxis={ [{ label: 'Value (USD)' }] }
-              series={[{ data: seriesData, label: 'Portfolio Value' }]}
-              sx={{ width: '100%', height: 300 }} // Chart scales to card width
-          />
-      )}
-      <StockIncomeGraph portfolio={portfolio} />
+    <Box sx={{ width: '100%', height: '100%'}}> {/* Full width & height of parent */}
+      
+      <PortfolioHeader transactions={transactions} />
+
+      <Grid container sx={{ m: 4, gap: 2, width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <Grid item xs={12} md={8}> 
+          <StockIncomeGraph transactions={transactions} />
+        </Grid>
+        
+        <Grid item xs={12} md={4}> 
+          <PortfolioComposition transactions={transactions} />
+        </Grid>
+      </Grid>
+     
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2, justifyContent: 'space-between' }}>
         <Typography variant="h5" component="div" sx={{ mt: 2, textAlign: 'center' }}>
             {portfolio.name}
@@ -76,6 +80,7 @@ function PortfolioDetailed({ portfolio }) {
         open={open}
         onClose={() => {
           setOpen(false);
+          getTransactions(portfolio.id);
         }}
       />
 

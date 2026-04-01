@@ -31,7 +31,6 @@ DEVELOPMENT = os.getenv("DEVELOPMENT", "False").lower() == "true"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = DEVELOPMENT
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -71,11 +70,17 @@ if DEVELOPMENT:
         "http://localhost:5173",
     ]    
 else:
+    ALLOWED_HOSTS = ["budgetandportfoliotrackingtool.com", "www.budgetandportfoliotrackingtool.com"]
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        # "http://localhost:3000", example production url
+        "http://budgetandportfoliotrackingtool.com",
+        "https://budgetandportfoliotrackingtool.com",
     ]
 
+    CSRF_TRUSTED_ORIGINS = [
+        "http://budgetandportfoliotrackingtool.com",
+        "https://budgetandportfoliotrackingtool.com",
+    ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "X-Portfolio-Mode",
@@ -153,7 +158,7 @@ else:
     }
 
     SIMPLE_JWT = {
-        "ACCESS_TOKEN_LIFETIME": timedelta(hours=15),      # default is 5 minutes
+        "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),      # default is 5 minutes
         "REFRESH_TOKEN_LIFETIME": timedelta(days=1),       # default is 1 day
 
         "ROTATE_REFRESH_TOKENS": False,
