@@ -14,29 +14,36 @@ import PortfolioComposition from './PortfolioComposition.jsx';
 import HoldingTable from '../tables/HoldingTable.jsx';
 import TransactionTable from '../tables/TransactionTable.jsx';
 
-function PortfolioDetailed({ portfolio }) {
+function PortfolioDetailed() {
 
   const navigate = useNavigate();
-  const { setPortfolio } = usePortfolioContext();
-  const { deletePortfolio } = usePortfolio();
-  const { transactions, getTransactions } = useTransactions(); 
-  const { holdings, getHoldings } = useHoldings(); 
+  const { portfolio, setPortfolio } = usePortfolioContext();
+  const [transactions, setTransactions] = useState([]);
+  const [holdings, setHoldings] = useState([]);
+  const [snapshots, setSnapshots] = useState([]);
   const [buyOpen, setBuyOpen] = useState(false);
   const [sellOpen, setSellOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showHoldings, setShowHoldings] = useState(true);
-  const { snapshots, getPortfolioSnapshotDetails } = usePortfolioSnapshots(portfolio.id);
+  
+  
+  const { deletePortfolio } = usePortfolio();
+  const { getTransactions } = useTransactions(); 
+  const { getHoldings } = useHoldings(); 
+  const { getPortfolioSnapshotDetails } = usePortfolioSnapshots();
 
   const toggleView = () => {
     setShowHoldings(prev => !prev);
   };
 
   const refreshData = async () => {
-    await Promise.all([
+    const [newTransactions, newHoldings] = await Promise.all([
       getTransactions(portfolio.id),
       getHoldings(portfolio.id)
     ]);
+    setTransactions(newTransactions);
+    setHoldings(newHoldings);
   };
 
   useEffect(() => {
@@ -46,11 +53,14 @@ function PortfolioDetailed({ portfolio }) {
       setLoading(true);
 
       try {
-        await Promise.all([
+        const [newTransactions, newHoldings, newSnapshots] = await Promise.all([
           getTransactions(portfolio.id),
           getHoldings(portfolio.id),
           getPortfolioSnapshotDetails(portfolio.id),
         ]);
+        setTransactions(newTransactions);
+        setHoldings(newHoldings);
+        setSnapshots(newSnapshots);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -67,11 +77,11 @@ function PortfolioDetailed({ portfolio }) {
       <PortfolioHeader holdings={holdings} />
 
       <Grid container sx={{ m: 4, gap: 2, width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <Grid item xs={12} md={8}> 
+        <Grid > 
           <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
         </Grid>
         
-        <Grid item xs={12} md={4}> 
+        <Grid > 
           <PortfolioComposition holdings={holdings} />
         </Grid>
       </Grid>

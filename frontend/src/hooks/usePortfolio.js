@@ -1,11 +1,12 @@
 // hooks/usePortfolio.js
 import { useState } from "react";
 import { getPortfolioDetailsAPI, createPortfolioAPI, updatePortfolioAPI, deletePortfolioAPI } from "../services/api";
+import { usePortfolioContext } from "../context/PortfolioContext";
 
-export const usePortfolio = (id) => {
-  const [portfolio, setPortfolio] = useState(null);
+export const usePortfolio = () => {
+  const {portfolio, setPortfolio} = usePortfolioContext();
 
-  const getPortfolioDetails = async () => {
+  const getPortfolioDetails = async (id) => {
     const res = await getPortfolioDetailsAPI(id);
     setPortfolio(res.data);
   };

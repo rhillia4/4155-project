@@ -15,8 +15,7 @@ import {
 import { usePortfolioContext } from "../../context/PortfolioContext";
 import { usePortfolio } from "../../hooks/usePortfolio";
 // #TODO: add input validation
-function CreatePortfolioPopOut({ open, onClose }) {
-  const { setPortfolio } = usePortfolioContext();
+function CreatePortfolioPopOut({ open, onClose, setPortfolio }) {
   const { createPortfolio } = usePortfolio();
   const [portfolioName, setPortfolioName] = useState("");
 
@@ -29,7 +28,7 @@ function CreatePortfolioPopOut({ open, onClose }) {
       const newPortfolio = await createPortfolio({
         name: portfolioName,
       });
-
+      console.log("Created portfolio:", newPortfolio);
       setPortfolio(newPortfolio);
       setPortfolioName("");
       onClose();

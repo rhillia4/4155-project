@@ -28,7 +28,7 @@ function StockIncomeGraph({ snapshots, holdings }) {
             );
             setSeriesData(values);
             console.log("Processed snapshots for graph:", { xaxisData, seriesData });
-          }else {
+          }else if (holdings && holdings.length > 0) {
             setXAxisData([new Date().toLocaleDateString()]);
             setSeriesData([holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0)]);
           }

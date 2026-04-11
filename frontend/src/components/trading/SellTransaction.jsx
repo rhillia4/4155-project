@@ -40,7 +40,6 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
     if (!Array.isArray(holdings)) return;
 
     const seen = new Set();
-    console.log("Processing holdings for symbol list:", holdings);
     const filtered = holdings
       .filter(h => {
         if (!h?.asset.symbol) return false;
@@ -70,12 +69,10 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
           const timestamps = data
             .map(d => new Date(d.date).getTime())
             .filter(Boolean);
-            console.log("Mindate: ", minDate);
             if (timestamps.length) {
                 setMinDate(dayjs(Math.max(Math.min(...timestamps), minDate || 0)));
                 setMaxDate(dayjs(Math.max(...timestamps) + 24 * 60 * 60 * 1000)); // Add 1 day to include max date
             }
-            console.log("Mindate2: ", minDate);
         }
       })
       .catch((error) => {
@@ -165,8 +162,6 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
           onChange={(event, newValue) => {
             setAsset(newValue.asset || null);
             setMinDate(newValue.buy_date ? dayjs(newValue.buy_date) : null);
-            console.log("MinDate set to:", minDate);
-            console.log("Selected asset:", newValue.asset);
             setQuantity(1);
           }}
         />

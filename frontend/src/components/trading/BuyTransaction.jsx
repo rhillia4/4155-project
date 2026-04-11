@@ -242,7 +242,6 @@ function BuyTransaction({ portfolioId, open, onClose }) {
                   sx={{ mt: 2 }}
                   onClick={async () => {
                     try {
-                      console.log(selectedDateStr);
                       await createTransaction(portfolioId, {
                         asset: asset.id,
                         transaction_type: "BUY",

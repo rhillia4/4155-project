@@ -3,15 +3,16 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeContextProvider } from "./context/ThemeContext";
 import { BudgetProvider } from "./context/BudgetContext";
 import AppRoutes from "./AppRoutes";
+import { PortfolioProvider } from "./context/PortfolioContext";
 
 function App() {
   return (
     <ThemeContextProvider>
       <HashRouter>
         <AuthProvider>
-          <BudgetProvider>
-            <AppRoutes />
-          </BudgetProvider>
+            <BudgetProvider>
+              <AppRoutes />
+            </BudgetProvider>
         </AuthProvider>
       </HashRouter>
     </ThemeContextProvider>  

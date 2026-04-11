@@ -6,15 +6,17 @@ import { ThemeContext } from "../../context/ThemeContext.jsx";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import vestlyLogo from "../../assets/VestlyImg.png";
+import { usePortfolioContext } from "../../context/PortfolioContext.jsx";
  
 function Sidebar() {
   const [open, setOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
- 
+  const { setPortfolio } = usePortfolioContext();
   const { logout } = useAuth();
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
   const theme = useTheme();
   const location = useLocation();
+  
  
   const isDark = theme.palette.mode === "dark";
  
@@ -23,7 +25,6 @@ function Sidebar() {
       { label: "Dashboard", path: "/dashboard" },
       { label: "Budget", path: "/budget" },
       { label: "Portfolio", path: "/portfolio" },
-      { label: "News", path: "/news" },
       { label: "FAQ", path: "/faq" },
       { label: "About", path: "/about" },
     ],
@@ -138,6 +139,7 @@ function Sidebar() {
                     backgroundColor: active ? undefined : hoverBg,
                   },
                 }}
+                onClick={() => setPortfolio(null)}
               >
                 {open ? item.label : item.label[0]}
               </Button>

@@ -1,65 +1,183 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Grid, Table, TableContainer, Paper, TableHead, TableCell, TableRow, TableBody } from '@mui/material';
-import PortfolioLineGraph from '../components/charts/PortfolioLineGraph.jsx';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardActionArea,
+  CardContent,
+} from '@mui/material';
+
 import { usePortfolioContext } from '../context/PortfolioContext.jsx';
 import { usePortfolios } from '../hooks/usePortfolios.js';
+
 import CreatePortfolioPopOut from '../components/portfolio/CreatePortfolioPopOut.jsx';
 import PortfolioDetailed from '../components/portfolio/PortfolioDetailed.jsx';
+import StockIncomeGraph from '../components/portfolio/StockIncomeGraph.jsx';
 
+// assumed external functions (make sure these exist/imported)
+import { useHoldings } from '../hooks/useHoldings.js';
+import { usePortfolioSnapshots } from '../hooks/usePortfolioSnapshot.js';
 
 function PortfolioPage() {
-  const { portfolio } = usePortfolioContext();
-  const { portfolios, fetchPortfolios } = usePortfolios();
+  const { portfolio, setPortfolio } = usePortfolioContext();
+  const [portfolios, setPortfolios] = useState([]);
+  
   const [open, setOpen] = useState(false);
+  const [enrichedPortfolios, setEnrichedPortfolios] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  const {fetchPortfolios } = usePortfolios();
+  const { getPortfolioSnapshotDetails } = usePortfolioSnapshots(null);
+  const { getHoldings } = useHoldings(null);
+  const navigate = useNavigate();
+
+  // Load portfolios once
   useEffect(() => {
-    fetchPortfolios();
-  }, [fetchPortfolios]);
+    const loadPortfolios = async () => {
+      const data = await fetchPortfolios();
+      setPortfolios(data);
+    };
+    loadPortfolios();
+  }, []);
+
+  // Enrich portfolios with holdings + snapshots
+  useEffect(() => {
+    if (!portfolios?.length) return;
+
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const enriched = await Promise.all(
+          portfolios.map(async (p) => {
+            const [holdings, snapshots] = await Promise.all([
+              getHoldings(p.id),
+              getPortfolioSnapshotDetails(p.id),
+            ]);
+
+            return {
+              ...p,
+              holdings,
+              snapshots,
+            };
+          })
+        );
+
+        setEnrichedPortfolios(enriched);
+      } catch (err) {
+        setError(err.message || 'Failed to load portfolio data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [portfolios]);
+
+  const listToRender =
+    enrichedPortfolios?.length ? enrichedPortfolios : portfolios;
 
   return (
-    <Box sx={{ p: 4, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+    <Box
+      sx={{
+        p: 4,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
       {/* Header */}
-      <Box sx={{ mb: 4, width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" component="h1">Portfolio</Typography>
-        <Button onClick={() => setOpen(true)}>Create New Portfolio</Button>
+      <Box
+        sx={{
+          mb: 4,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant="h4" component="h1">
+          Portfolio
+        </Typography>
+
+        <Button onClick={() => setOpen(true)}>
+          Create New Portfolio
+        </Button>
       </Box>
 
       <CreatePortfolioPopOut
         open={open}
-        onClose={() => {
-          setOpen(false);
-        }}
+        onClose={() => setOpen(false)}
+        setPortfolio={setPortfolio}
       />
 
       <Typography variant="body1" sx={{ mb: 4, alignSelf: 'flex-start' }}>
         Welcome to your portfolio page!
       </Typography>
 
+      {loading && (
+        <Typography sx={{ mb: 2 }}>Loading portfolios...</Typography>
+      )}
+
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+
       {/* Portfolio Display */}
       <Grid container spacing={2} justifyContent="center" sx={{ width: '80%' }}>
         {/* Selected portfolio */}
         {portfolio && (
           <Grid sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <PortfolioDetailed portfolio={portfolio} />
+            <PortfolioDetailed />
           </Grid>
         )}
 
-        {/* Other portfolios */}
-        {(!portfolio && portfolios && portfolios.length > 0) && portfolios.map((p) => (
-          <Grid
-            key={p.id}
-            sx={{ display: 'flex', justifyContent: 'center' }}
-          >
-            <PortfolioLineGraph portfolio={p} />
-          </Grid>
-        ))}
+        {/* Portfolio list */}
+        {!portfolio &&
+          listToRender &&
+          listToRender.length > 0 &&
+          listToRender.map((p) => (
+            <Grid
+              key={p.id}
+              sx={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <Card sx={{ width: '100%', height: '100%' }}>
+                <CardActionArea
+                  onClick={() => setPortfolio(p)}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <CardContent sx={{ width: '100%', height: '100%' }}>
+                    <StockIncomeGraph
+                      snapshots={p.snapshots}
+                      holdings={p.holdings}
+                    />
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
 
-        {/* No portfolios */}
-        {(!portfolio && (!portfolios || portfolios.length === 0)) && (
-          <Typography variant="body2">
-            No portfolios found. Please create one to get started.
-          </Typography>
-        )}
+        {/* Empty state */}
+        {!portfolio &&
+          (!listToRender || listToRender.length === 0) &&
+          !loading && (
+            <Typography variant="body2">
+              No portfolios found. Please create one to get started.
+            </Typography>
+          )}
       </Grid>
     </Box>
   );

@@ -8,13 +8,14 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import BudgetPage from "./pages/BudgetPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
-import { PortfolioProvider } from "./context/PortfolioContext.jsx";
 
 // import GamePage from "./pages/GamePage.jsx";
 // import GameLobbyPage from "./pages/GameLobbyPage.jsx";
 // import LeaderboardPage from "./pages/LeaderboardPage.jsx";
 
 import PortfolioPage from "./pages/PortfolioPage.jsx";
+import FAQPage from "./pages/FAQPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
 
 function AppRoutes() {
   const [monthlyIncome, setMonthlyIncome] = useState("");
@@ -64,6 +65,8 @@ function AppRoutes() {
 
           {/* Portfolio */}
           <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/about" element={<AboutPage />} />
 
         </Route>
       </Route>

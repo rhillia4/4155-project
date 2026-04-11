@@ -2,45 +2,41 @@ import { useState } from "react";
 import { getHoldingsAPI, getStockData } from "../services/api";
 
 export const useHoldings = () => {
-  const [holdings, setHoldings] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-
   const getHoldings = async (portfolioId) => {
-    setLoading(true);
-    setError(null);
-
     try {
       const res = await getHoldingsAPI(portfolioId);
-      for (const holding of res.data) {
-        try {
-          const stockRes = await getStockData(holding.asset_symbol);
-          holding.latest_price = stockRes.data[0]?.price;
-          holding.value = stockRes.data[0]?.price * holding.remaining_shares;
-        } catch (err) {
-          console.error(`Error fetching stock data for ${holding.asset_symbol}:`, err);
-        }
-      }
 
+      const enriched = await Promise.all(
+        res.data.map(async (holding) => {
+          try {
+            const stockRes = await getStockData(holding.asset_symbol);
+            const price = stockRes.data[0]?.price;
 
-      setHoldings(res.data || []);
+            return {
+              ...holding,
+              latest_price: price,
+              value: price * holding.remaining_shares,
+            };
+          } catch (err) {
+            console.error(
+              `Error fetching stock data for ${holding.asset_symbol}:`,
+              err
+            );
+            return holding;
+          }
+        })
+      );
+
+      return enriched; // ✅ THIS FIXES YOUR ISSUE
     } catch (err) {
       if (err.response?.status === 404) {
-        setHoldings([]);
-        setError("No holdings found for this portfolio");
+        return []; // ✅ safe fallback
       } else {
         console.error("Error fetching holdings:", err);
-        setError("Failed to load holdings");
+        throw err; // let caller handle it
       }
-    } finally {
-      setLoading(false);
     }
   };
 
-  return {
-    getHoldings,
-    holdings,
-    loading,
-    error,
-  };
+  return { getHoldings };
 };

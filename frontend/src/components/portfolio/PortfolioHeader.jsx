@@ -14,24 +14,24 @@ function PortfolioHeader({ holdings }) {
 
   return (
     <Grid container spacing={2} sx={{ mb: 3 }}>
-      <Grid item xs={12} sm={2.4}><Paper sx={cardStyle}>
+      <Grid ><Paper sx={cardStyle}>
         <Typography variant="caption" color="textSecondary">PORTFOLIO VALUE</Typography>
         {/* just matching investment until live prices are added */}
         <Typography variant="h6">${stats.investment.toLocaleString()}</Typography>
       </Paper></Grid>
-      <Grid item xs={3}><Paper sx={cardStyle}>
+      <Grid ><Paper sx={cardStyle}>
         <Typography variant="caption" color="textSecondary">YOUR INVESTMENT</Typography>
         <Typography variant="h6">${stats.investment.toLocaleString()}</Typography>
       </Paper></Grid>
-      <Grid item xs={3}><Paper sx={cardStyle}>
+      <Grid ><Paper sx={cardStyle}>
         <Typography variant="caption" color="textSecondary">TOTAL POSITIONS</Typography>
         <Typography variant="h6">{stats.positions}</Typography>
       </Paper></Grid>
-      <Grid item xs={3}><Paper sx={cardStyle}>
+      <Grid ><Paper sx={cardStyle}>
         <Typography variant="caption" color="textSecondary">DAY CHANGE</Typography>
         <Typography variant="h6">--</Typography>
       </Paper></Grid>
-      <Grid item xs={3}><Paper sx={cardStyle}>
+      <Grid ><Paper sx={cardStyle}>
         <Typography variant="caption" color="textSecondary">ROI</Typography>
         <Typography variant="h6">--%</Typography>
       </Paper></Grid>

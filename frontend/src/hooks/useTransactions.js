@@ -1,45 +1,31 @@
-import { useState } from "react";
 import { getTransactionsAPI, createTransactionAPI } from "../services/api";
 
 export const useTransactions = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-
   const getTransactions = async (portfolioId) => {
-    setLoading(true);
-    setError(null);
-
     try {
       const res = await getTransactionsAPI(portfolioId);
-      setTransactions(res.data || []);
+      return res.data || []; // ✅ RETURN
     } catch (err) {
       if (err.response?.status === 404) {
-        setTransactions([]);
-        setError("No transactions found for this portfolio");
+        return [];
       } else {
         console.error("Error fetching transactions:", err);
-        setError("Failed to load transactions");
+        throw err;
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   const createTransaction = async (portfolioId, transactionData) => {
     try {
       const res = await createTransactionAPI(portfolioId, transactionData);
-      setTransactions((prev) => [...prev, res.data]);
+      return res.data; // ✅ RETURN
     } catch (err) {
-        console.error("Backend validation error:", err.response?.data);
-        throw err;
+      console.error("Backend validation error:", err.response?.data);
+      throw err;
     }
   };
 
   return {
-    transactions,
-    loading,
-    error,
     getTransactions,
     createTransaction,
   };
