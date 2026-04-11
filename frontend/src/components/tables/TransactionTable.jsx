@@ -1,5 +1,6 @@
 import { Box, Typography, Paper, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button, Grid } from '@mui/material';
 import { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 
 function TransactionTable({ transactions }) {
     const [rows, setRows] = useState([]);
@@ -20,18 +21,18 @@ function TransactionTable({ transactions }) {
                     <TableCell>Price(Per Share)</TableCell>
                     <TableCell>Total Price</TableCell>
                     <TableCell>Type</TableCell>
-                    <TableCell>Date</TableCell>
+                    <TableCell>Transaction Date</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     { rows?.map((t) => (
                     <TableRow key={t.id}>
                         <TableCell>{t.asset_symbol}</TableCell>
-                        <TableCell>{t.shares}</TableCell>
-                        <TableCell>${t.price}</TableCell>
-                        <TableCell>${(t.shares * t.price)}</TableCell>
+                        <TableCell>{parseFloat(t.shares).toFixed(0)}</TableCell>
+                        <TableCell>${parseFloat(t.price).toFixed(2)}</TableCell>
+                        <TableCell>${parseFloat(t.shares * t.price).toFixed(2)}</TableCell>
                         <TableCell>{t.transaction_type}</TableCell>
-                        <TableCell>{t.transaction_date}</TableCell>
+                        <TableCell>{dayjs(t.transaction_date).format('MM/DD/YY')}</TableCell>
                     </TableRow>
                     ))}
                 </TableBody>

@@ -245,10 +245,8 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
                       onChange={(newValue) => {
                         if (newValue) setSelectedDate(newValue);
                       }}
-                        shouldDisableDate={isMarketClosed}
-                      slotProps={{
-                        textField: { fullWidth: true }
-                      }}
+                      shouldDisableDate={isMarketClosed}
+                      textField= {{ fullWidth: true }}
                     />
                   </LocalizationProvider>
                 </Box>

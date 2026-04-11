@@ -85,7 +85,10 @@ class HoldingListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Holding.objects.filter(portfolio__user=self.request.user)
+        return Holding.objects.filter(
+            portfolio__user=self.request.user,
+            portfolio__id=self.kwargs["portfolio_id"]    
+        )
 
 
 class PortfolioAggregatedHoldingsView(generics.ListAPIView):

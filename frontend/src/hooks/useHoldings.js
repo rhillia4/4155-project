@@ -9,7 +9,7 @@ export const useHoldings = () => {
       const enriched = await Promise.all(
         res.data.map(async (holding) => {
           try {
-            const stockRes = await getStockData(holding.asset_symbol);
+            const stockRes = await getStockData(holding.asset.symbol);
             const price = stockRes.data[0]?.price;
 
             return {
@@ -19,7 +19,7 @@ export const useHoldings = () => {
             };
           } catch (err) {
             console.error(
-              `Error fetching stock data for ${holding.asset_symbol}:`,
+              `Error fetching stock data for ${holding.asset.symbol}:`,
               err
             );
             return holding;

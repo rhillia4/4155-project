@@ -215,7 +215,7 @@ function BuyTransaction({ portfolioId, open, onClose }) {
                         setSelectedDate(newValue);
                       }}
                       shouldDisableDate={isMarketClosed}
-                      renderInput={(params) => <TextField {...params} />}
+                      textField={{ fullWidth: true }}
                     />
                   </LocalizationProvider>
                 </Box>

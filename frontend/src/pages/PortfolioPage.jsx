@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -35,15 +35,25 @@ function PortfolioPage() {
   const { getHoldings } = useHoldings(null);
   const navigate = useNavigate();
 
+  const handleClose = () => {
+    setOpen(false);
+    window.location.reload();
+    };
+
   // Load portfolios once
   useEffect(() => {
     const loadPortfolios = async () => {
       const data = await fetchPortfolios();
-      setPortfolios(data);
+      const sorted = data.sort((a, b) => a.name.localeCompare(b.name)); 
+      setPortfolios(sorted);
     };
     loadPortfolios();
   }, []);
 
+  useEffect(() => {
+    // refresh data when portfolio changes
+    if (!portfolio) return;
+  }, [portfolio]);
   // Enrich portfolios with holdings + snapshots
   useEffect(() => {
     if (!portfolios?.length) return;
@@ -67,7 +77,6 @@ function PortfolioPage() {
             };
           })
         );
-
         setEnrichedPortfolios(enriched);
       } catch (err) {
         setError(err.message || 'Failed to load portfolio data');
@@ -79,8 +88,6 @@ function PortfolioPage() {
     loadData();
   }, [portfolios]);
 
-  const listToRender =
-    enrichedPortfolios?.length ? enrichedPortfolios : portfolios;
 
   return (
     <Box
@@ -113,8 +120,7 @@ function PortfolioPage() {
 
       <CreatePortfolioPopOut
         open={open}
-        onClose={() => setOpen(false)}
-        setPortfolio={setPortfolio}
+        onClose={() => handleClose()}
       />
 
       <Typography variant="body1" sx={{ mb: 4, alignSelf: 'flex-start' }}>
@@ -136,15 +142,15 @@ function PortfolioPage() {
         {/* Selected portfolio */}
         {portfolio && (
           <Grid sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <PortfolioDetailed />
+            <PortfolioDetailed onClose={() => handleClose()} />
           </Grid>
         )}
 
         {/* Portfolio list */}
         {!portfolio &&
-          listToRender &&
-          listToRender.length > 0 &&
-          listToRender.map((p) => (
+          enrichedPortfolios &&
+          enrichedPortfolios.length > 0 &&
+          enrichedPortfolios.map((p) => (
             <Grid
               key={p.id}
               sx={{ display: 'flex', justifyContent: 'center' }}
@@ -159,6 +165,9 @@ function PortfolioPage() {
                     alignItems: 'center',
                   }}
                 >
+                  <Typography variant="h6" component="h2" sx={{ mt: 2 }}>
+                    {p.name}
+                  </Typography>
                   <CardContent sx={{ width: '100%', height: '100%' }}>
                     <StockIncomeGraph
                       snapshots={p.snapshots}
@@ -172,7 +181,7 @@ function PortfolioPage() {
 
         {/* Empty state */}
         {!portfolio &&
-          (!listToRender || listToRender.length === 0) &&
+          (!enrichedPortfolios || enrichedPortfolios.length === 0) &&
           !loading && (
             <Typography variant="body2">
               No portfolios found. Please create one to get started.
