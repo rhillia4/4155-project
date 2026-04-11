@@ -11,6 +11,7 @@ urlpatterns = [
 
     # --- Assets ---
     path('assets/', AssetListView.as_view(), name='asset-list'),
+    path('assets/<int:id>/', AssetDetailView.as_view(), name='asset-detail'),
 
     # --- Portfolios ---
     path('portfolios/', PortfolioListCreateView.as_view(), name='portfolio-list-create'),

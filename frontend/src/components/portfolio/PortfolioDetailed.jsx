@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { Box, Typography, Paper, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button, Grid } from '@mui/material';
+import { Box, Typography, Button, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioContext } from '../../context/PortfolioContext.jsx';
 import { usePortfolio } from '../../hooks/usePortfolio.js';
 import { useTransactions } from '../../hooks/useTransactions.js';
-import axios from 'axios';
-import Transaction from '../trading/Transaction.jsx';
+import { useHoldings } from '../../hooks/useHoldings.js';
+import { usePortfolioSnapshots } from '../../hooks/usePortfolioSnapshot.js';
+import BuyTransaction from '../trading/BuyTransaction.jsx';
+import SellTransaction from '../trading/SellTransaction.jsx';
 import StockIncomeGraph from './StockIncomeGraph.jsx';
 import PortfolioHeader from './PortfolioHeader.jsx';
 import PortfolioComposition from './PortfolioComposition.jsx';
+import HoldingTable from '../tables/HoldingTable.jsx';
+import TransactionTable from '../tables/TransactionTable.jsx';
 
 function PortfolioDetailed({ portfolio }) {
 
@@ -17,36 +20,57 @@ function PortfolioDetailed({ portfolio }) {
   const { setPortfolio } = usePortfolioContext();
   const { deletePortfolio } = usePortfolio();
   const { transactions, getTransactions } = useTransactions(); 
-  const [xaxisData, setXAxisData] = useState([]);
-  const [seriesData, setSeriesData] = useState([]);
-  const [open, setOpen] = useState(false);
+  const { holdings, getHoldings } = useHoldings(); 
+  const [buyOpen, setBuyOpen] = useState(false);
+  const [sellOpen, setSellOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showHoldings, setShowHoldings] = useState(true);
+  const { snapshots, getPortfolioSnapshotDetails } = usePortfolioSnapshots(portfolio.id);
+
+  const toggleView = () => {
+    setShowHoldings(prev => !prev);
+  };
+
+  const refreshData = () => {
+    getTransactions(portfolio.id);
+    getHoldings(portfolio.id);
+  };
 
   useEffect(() => {
-      if (!portfolio?.id) return;
+    if (!portfolio?.id) return;
+
+    const loadData = async () => {
       setLoading(true);
+
       try {
-        getTransactions(portfolio.id);
+        await Promise.all([
+          getTransactions(portfolio.id),
+          getHoldings(portfolio.id),
+          getPortfolioSnapshotDetails(portfolio.id),
+        ]);
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
-  }, [portfolio.id]);
+    };
+
+    loadData();
+  }, [portfolio?.id]);
 
   return (
     <Box sx={{ width: '100%', height: '100%'}}> {/* Full width & height of parent */}
       
-      <PortfolioHeader transactions={transactions} />
+      <PortfolioHeader holdings={holdings} />
 
       <Grid container sx={{ m: 4, gap: 2, width: '100%', display: 'flex', justifyContent: 'center' }}>
         <Grid item xs={12} md={8}> 
-          <StockIncomeGraph transactions={transactions} />
+          <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
         </Grid>
         
         <Grid item xs={12} md={4}> 
-          <PortfolioComposition transactions={transactions} />
+          <PortfolioComposition holdings={holdings} />
         </Grid>
       </Grid>
      
@@ -58,10 +82,9 @@ function PortfolioDetailed({ portfolio }) {
           onClick={async () => {
             try {
               await deletePortfolio(portfolio.id);
+              window.location.reload();
               setPortfolio(null);
               navigate('/portfolio');
-              window.location.reload();
-
             } catch (error) {
               console.error("Error deleting portfolio:", error);
             }
@@ -70,50 +93,48 @@ function PortfolioDetailed({ portfolio }) {
           >
           Delete Portfolio
         </Button>
-        <Button onClick={() => setOpen(true)} sx={{}}>
+        <Button onClick={() => setBuyOpen(true)} sx={{}}>
           Buy Position
+        </Button>
+        <Button onClick={() => setSellOpen(true)} sx={{}}>
+          Sell Position
         </Button>
       </Box>
 
-      <Transaction
-        portfolioId={portfolio.id}
-        open={open}
-        onClose={() => {
-          setOpen(false);
-          getTransactions(portfolio.id);
-        }}
-      />
+        <BuyTransaction
+          portfolioId={portfolio.id}
+          open={buyOpen}
+          onClose={() => {
+            setBuyOpen(false);
+            refreshData();
+          }}
+        />
+        <SellTransaction
+          portfolioId={portfolio.id}
+          holdings={holdings}
+          open={sellOpen}
+          onClose={() => {
+            setSellOpen(false);
+            refreshData();
+          }}
+        />
 
-    {/* Table */}
-      <Typography variant="h5" component="h2" sx={{ mt: 4, alignSelf: 'flex-start' }}>
-        Transactions for {portfolio.name}
-      </Typography>
-      <TableContainer component={Paper} sx={{ mt: 4, width: '100%' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Symbol</TableCell>
-              <TableCell>Shares</TableCell>
-              <TableCell>Value(Per Share)</TableCell>
-              <TableCell>Total Value</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Date</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            { transactions?.map((t) => (
-              <TableRow key={t.id}>
-                <TableCell>{t.asset.symbol}</TableCell>
-                <TableCell>{t.shares}</TableCell>
-                <TableCell>{t.price}</TableCell>
-                <TableCell>{t.shares * t.price}</TableCell>
-                <TableCell>{t.transaction_type}</TableCell>
-                <TableCell>{t.executed_at}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        {/* Table */}
+          <Typography variant="h5" component="h2" sx={{ mt: 4, alignSelf: 'flex-start' }}>
+            {!showHoldings ? "Transactions" : "Holdings"} for {portfolio.name}
+          </Typography>
+
+          <Box sx={{ width: '100%', height: '100%' }}>
+              <div>
+              {/* Toggle Button */}
+              <Button onClick={toggleView}>
+                Switch to {showHoldings ? "Transactions" : "Holdings"}
+              </Button>
+
+              {/* Only ONE renders at a time */}
+              {showHoldings ? <HoldingTable holdings={holdings} /> : <TransactionTable transactions={transactions} />}
+            </div>
+          </Box>
     </Box>
   );
 }

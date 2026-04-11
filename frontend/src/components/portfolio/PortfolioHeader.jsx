@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { Box, Typography, Paper, Grid } from '@mui/material';
 
-function PortfolioHeader({ transactions }) {
+function PortfolioHeader({ holdings }) {
   const stats = useMemo(() => {
-    if (!transactions || transactions.length === 0) return { investment: 0, positions: 0 };
-    const investment = transactions.reduce((sum, t) => sum + (t.shares * t.price), 0);
+    if (!holdings || holdings.length === 0) return { investment: 0, positions: 0 };
+    const investment = holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0);
     // Counting unique symbols using a Set
-    const positions = new Set(transactions.map(t => t.asset.symbol)).size;
+    const positions = new Set(holdings.map(h => h.asset_symbol)).size;
     return { investment, positions };
-  }, [transactions]);
+  }, [holdings]);
 
   const cardStyle = { p: 2, textAlign: 'center', borderRadius: 2, border: '1px solid', borderColor: 'divider'};
 

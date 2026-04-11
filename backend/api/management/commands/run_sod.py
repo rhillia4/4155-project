@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from api.services import create_sod_snapshots
+from ...services import create_sod_snapshots
 
 
 class Command(BaseCommand):

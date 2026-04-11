@@ -8,7 +8,6 @@ export const usePortfolio = (id) => {
   const getPortfolioDetails = async () => {
     const res = await getPortfolioDetailsAPI(id);
     setPortfolio(res.data);
-    console.log("Fetched Portfolio:", res.data);
   };
 
   const createPortfolio = async (portfolioData) => {

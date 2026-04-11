@@ -2,7 +2,7 @@ import sys
 import time
 import argparse #
 from datetime import datetime, timedelta
-from db import DB_QUERY
+from .db import DB_QUERY
 import asyncio
 import aiohttp
 import random
@@ -177,7 +177,7 @@ def get_historical_price_url(symbol, to_date, from_date=None):
         return FMP_API_BASE_URL + f"api/v3/historical-price-full/{symbol}?to={from_date}&apikey={FMP_API_KEY}"
     return FMP_API_BASE_URL + f"api/v3/historical-price-full/{symbol}?from={from_date}&to={to_date}&apikey={FMP_API_KEY}"
 
-async def load_all_stocks(to_date=(datetime.now() - timedelta(days= 1)).strftime("%Y-%m-%d"), from_date=(datetime.now() - timedelta(days= 3)).strftime("%Y-%m-%d")):
+async def load_all_stocks(to_date=None, from_date=None):
     start_time = datetime.now()
     all_error_log = {}
     all_truncated_cols = set()
@@ -215,6 +215,7 @@ async def load_all_stocks(to_date=(datetime.now() - timedelta(days= 1)).strftime
     duration = (datetime.now() - start_time).total_seconds()
     minutes, seconds = divmod(int(duration), 60)
     duration_formatted = f"{minutes} min {seconds} secs"
+    print(errors)
 
 
 

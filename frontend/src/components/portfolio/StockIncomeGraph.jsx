@@ -1,26 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { Box, Typography, Paper } from '@mui/material';
+import dayjs from 'dayjs';
 
-function StockIncomeGraph({ transactions }) {
+function StockIncomeGraph({ snapshots, holdings }) {
     const [xaxisData, setXAxisData] = useState([]);
     const [seriesData, setSeriesData] = useState([]);
 
     useEffect(() => {
-        if (transactions && transactions.length > 0) {
-            setXAxisData(transactions.map(tx => tx.executed_at || tx.date));
+        if (snapshots && snapshots.length > 0) {
+            const sortedSnapshots = [...snapshots].sort(
+                (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+            );
             
-            const deltaChanges = transactions.map((tx, index) => {
-                const currentValue = tx.shares * tx.price;
-                if (index === 0) return 0;
-                const prevTx = transactions[index - 1];
-                const prevValue = prevTx.shares * prevTx.price;
+            const values = sortedSnapshots.map(snap => snap.total_value);
+            console.log("Initial values from snapshots:", values);
+            if (new Date(snapshots[0].timestamp).toLocaleDateString() === new Date().toLocaleDateString()) {
+                values[0] = holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0);
+            }else {
+                values.unshift(holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0));
+            }
 
-                return currentValue - prevValue;
-            });
-            setSeriesData(deltaChanges);
-        }
-    }, [transactions]); // Only runs when the data actually changes
+            setXAxisData(
+              sortedSnapshots.map(snap =>
+                new Date(snap.timestamp).toLocaleDateString()
+              )
+            );
+            setSeriesData(values);
+            console.log("Processed snapshots for graph:", { xaxisData, seriesData });
+          }else {
+            setXAxisData([new Date().toLocaleDateString()]);
+            setSeriesData([holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0)]);
+          }
+    }, [snapshots, holdings]);
 
     return (
     <Paper sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: 350, display: 'flex', flexDirection: 'column' }}>
@@ -38,7 +50,7 @@ function StockIncomeGraph({ transactions }) {
           />
         ) : (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Typography color="textSecondary">No performance data yet</Typography>
+            <Typography color="textSecondary">No data yet</Typography>
           </Box>
         )}
       </Box>

@@ -32,6 +32,14 @@ class AssetListView(generics.ListAPIView):
         return Asset.objects.all()
 
 
+class AssetDetailView(generics.RetrieveAPIView):
+    serializer_class = AssetSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Asset.objects.filter(id=self.kwargs["id"])
+
+
 # --- Portfolios ---
 class PortfolioListCreateView(generics.ListCreateAPIView):
     serializer_class = PortfolioSerializer
@@ -68,7 +76,7 @@ class PortfolioSnapshotListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return PortfolioSnapshot.objects.filter(portfolio__user=self.request.user)
+        return PortfolioSnapshot.objects.filter(portfolio__user=self.request.user).order_by("-timestamp")
 
 
 # --- Holdings ---
@@ -117,6 +125,7 @@ class TransactionListCreateView(generics.ListCreateAPIView):
                 portfolio=portfolio,
                 asset=data["asset"],
                 tx_type=data["transaction_type"],
+                transaction_date=data["transaction_date"],
                 shares=data["shares"],
                 price=data["price"]
             )
@@ -137,7 +146,7 @@ class StockPriceListView(generics.ListAPIView):
 
     def get_queryset(self):
         symbol = self.kwargs["symbol"]
-        return StockPrice.objects.filter(asset__symbol=symbol).order_by("-date")
+        return StockPrice.objects.filter(symbol=symbol).order_by("-date")
 
 
 # --- Users / Auth ---

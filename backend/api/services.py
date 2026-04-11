@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import OuterRef, Subquery
 from decimal import Decimal
 from django.db import transaction
@@ -5,7 +7,7 @@ from django.utils import timezone
 from .models import Portfolio, Asset, Transaction, Holding, StockPrice, PortfolioSnapshot
 
 
-def apply_transaction(portfolio: Portfolio, asset: Asset, tx_type: str, shares: Decimal, price: Decimal):
+def apply_transaction(*, portfolio: Portfolio, asset: Asset, tx_type: str, transaction_date: datetime.date, shares: Decimal, price: Decimal):
     shares = Decimal(shares)
     price = Decimal(price)
 
@@ -44,6 +46,11 @@ def apply_transaction(portfolio: Portfolio, asset: Asset, tx_type: str, shares: 
                 lot.remaining_shares -= sell_qty
                 lot.save()
 
+                if lot.remaining_shares <= 0:
+                    lot.delete()
+                else:
+                    lot.save()
+
                 shares_to_sell -= sell_qty
 
             if shares_to_sell > 0:
@@ -61,6 +68,7 @@ def apply_transaction(portfolio: Portfolio, asset: Asset, tx_type: str, shares: 
             portfolio=portfolio,
             asset=asset,
             transaction_type=tx_type,
+            transaction_date=transaction_date,
             shares=shares,
             price=price
         )
@@ -73,7 +81,7 @@ def create_sod_snapshots():
 
     # Subquery to get latest price per asset
     latest_price_subquery = StockPrice.objects.filter(
-        asset=OuterRef("asset")
+        symbol=OuterRef("asset__symbol")
     ).order_by("-date").values("price")[:1]
 
     # Annotate holdings with latest price
@@ -95,7 +103,8 @@ def create_sod_snapshots():
 
     # Update portfolios + snapshots
     snapshots = []
-    now = timezone.now()
+    now = timezone.now() 
+    print("Computed timestamp:", now)
 
     for portfolio in portfolios:
         total_value = portfolio_values.get(portfolio.id, Decimal("0"))

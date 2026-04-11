@@ -70,8 +70,11 @@ export const updatePortfolioAPI = (id, data) =>
 export const deletePortfolioAPI = (id) =>
   api.delete(`/portfolios/${id}/`);
 
-export const getHoldings = () =>
-  api.get("/holdings/");
+export const getPortfolioSnapshots = (id) =>
+  api.get(`portfolios/${id}/snapshots/`);
+
+export const getHoldingsAPI = (id) =>
+  api.get(`portfolios/${id}/holdings/`);
 
 export const getTransactionsAPI = (id) =>
   api.get(`/portfolios/${id}/transactions/`);

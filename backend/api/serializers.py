@@ -10,13 +10,17 @@ class AssetSerializer(serializers.ModelSerializer):
 
 # --- Holdings (lot-based) ---
 class HoldingLotSerializer(serializers.ModelSerializer):
-    asset_symbol = serializers.CharField(source="asset.symbol", read_only=True)
-    asset_name = serializers.CharField(source="asset.name", read_only=True)
-
+    asset = AssetSerializer(read_only=True)
     class Meta:
         model = Holding
-        fields = ["id", "asset_symbol", "asset_name", "shares", "remaining_shares", "buy_price"]
-
+        fields = [
+            "id",
+            "asset",
+            "shares",
+            "remaining_shares",
+            "buy_price",
+        ]
+    
 # Aggregated holdings per asset
 class AggregatedHoldingSerializer(serializers.Serializer):
     asset_symbol = serializers.CharField()
@@ -29,7 +33,7 @@ class PortfolioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Portfolio
         fields = ["id", "name", "total_value", "realized_pnl", "user", "created_at"]
-        read_only_fields = ["id", "user", "created_at"]
+        read_only_fields = ["id", "user", "total_value", "realized_pnl", "created_at"]
 
 # Portfolio detail with lots
 class PortfolioDetailSerializer(serializers.ModelSerializer):
@@ -47,6 +51,8 @@ class PortfolioSnapshotSerializer(serializers.ModelSerializer):
 
 # --- Transactions ---
 class TransactionSerializer(serializers.ModelSerializer):
+    asset_symbol = serializers.CharField(source="asset.symbol", read_only=True)
+    executed_at = serializers.DateTimeField(format="%b %d, %Y", read_only=True)
     class Meta:
         model = Transaction
         fields = "__all__"
