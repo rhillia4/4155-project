@@ -1,7 +1,11 @@
-import React from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import React, { useEffect } from "react";import { Box, Typography, useTheme } from "@mui/material";
 import { useBudget } from "../context/BudgetContext";
 import BudgetPieChart from "../components/charts/BudgetPieChart.jsx";
+import StockIncomeGraph from "../components/portfolio/StockIncomeGraph.jsx";
+import PortfolioComposition from "../components/portfolio/PortfolioComposition.jsx";
+import { usePortfolioContext } from '../context/PortfolioContext.jsx';
+import { useHoldings } from '../hooks/useHoldings.js';
+import { usePortfolioSnapshots } from '../hooks/usePortfolioSnapshot.js';
 import {
   BarChart,
   Bar,
@@ -24,8 +28,18 @@ const categories = [
  
 function DashboardPage() {
   const { transactions, budgetLimits } = useBudget();
+  const { portfolio } = usePortfolioContext();
+  const { holdings = [], getHoldings } = useHoldings();
+  const { snapshots = [], getPortfolioSnapshotDetails } = usePortfolioSnapshots(portfolio?.id);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  
+  useEffect(() => {
+    if (portfolio?.id) {
+      getHoldings(portfolio.id);
+      getPortfolioSnapshotDetails(portfolio.id);
+    }
+  }, [portfolio?.id]);
  
   if (!budgetLimits) {
     return (
@@ -144,12 +158,18 @@ function DashboardPage() {
           align="center"
           variant="h6"
           gutterBottom
-          sx={{ color: theme.palette.text.primary }}
+          sx={{ color: theme.palette.text.primary, mb: 6 }}
         >
           Portfolio Overview
         </Typography>
  
         {/* RESERVED AREA FOR PORTFOLIO IMPLEMENTATION */}
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {/* The exactly-the-same charts */}
+            <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
+            <PortfolioComposition holdings={holdings} />
+          </Box>
       </Box>
     </Box>
   );
