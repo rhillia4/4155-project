@@ -17,6 +17,7 @@ class Holding(models.Model):
     shares = models.DecimalField(max_digits=15, decimal_places=4)  # original lot size
     remaining_shares = models.DecimalField(max_digits=15, decimal_places=4, default=0)  # shares left after partial sells
     buy_price = models.DecimalField(max_digits=15, decimal_places=2)
+    buy_date = models.DateField(default=timezone.localdate)
 
     class Meta:
         indexes = [

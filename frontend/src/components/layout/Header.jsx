@@ -11,7 +11,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import vestlyLogo from "./VestlyImg.png";
+import vestlyLogo from "../../assets/VestlyImg.png";
  
 function Header() {
   const { user } = useAuth();

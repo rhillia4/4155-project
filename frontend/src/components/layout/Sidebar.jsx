@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import { ThemeContext } from "../../context/ThemeContext.jsx";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import vestlyLogo from "./VestlyImg.png";
+import vestlyLogo from "../../assets/VestlyImg.png";
  
 function Sidebar() {
   const [open, setOpen] = useState(true);

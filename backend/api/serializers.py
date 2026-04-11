@@ -19,6 +19,7 @@ class HoldingLotSerializer(serializers.ModelSerializer):
             "shares",
             "remaining_shares",
             "buy_price",
+            "buy_date",
         ]
     
 # Aggregated holdings per asset

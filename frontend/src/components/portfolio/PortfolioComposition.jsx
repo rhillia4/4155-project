@@ -7,7 +7,10 @@ function PortfolioComposition({ holdings }) {
   const [rows, setRows] = useState([]);
 
     useEffect(() => {
-        if (!holdings?.length) return;
+        if (!holdings?.length) {
+          setRows([]);
+          return;
+        }
 
         const fetchData = async () => {
             const updatedRows = [];

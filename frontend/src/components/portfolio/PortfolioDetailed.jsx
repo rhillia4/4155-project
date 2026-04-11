@@ -32,9 +32,11 @@ function PortfolioDetailed({ portfolio }) {
     setShowHoldings(prev => !prev);
   };
 
-  const refreshData = () => {
-    getTransactions(portfolio.id);
-    getHoldings(portfolio.id);
+  const refreshData = async () => {
+    await Promise.all([
+      getTransactions(portfolio.id),
+      getHoldings(portfolio.id)
+    ]);
   };
 
   useEffect(() => {
@@ -96,7 +98,7 @@ function PortfolioDetailed({ portfolio }) {
         <Button onClick={() => setBuyOpen(true)} sx={{}}>
           Buy Position
         </Button>
-        <Button onClick={() => setSellOpen(true)} sx={{}}>
+        <Button onClick={() => setSellOpen(true)} sx={{}} disabled={holdings.length === 0}>
           Sell Position
         </Button>
       </Box>

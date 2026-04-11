@@ -70,11 +70,12 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
           const timestamps = data
             .map(d => new Date(d.date).getTime())
             .filter(Boolean);
-
-          if (timestamps.length) {
-            setMinDate(dayjs(Math.min(...timestamps)));
-            setMaxDate(dayjs(Math.max(...timestamps) + 24 * 60 * 60 * 1000)); // Add 1 day to include max date
-          }
+            console.log("Mindate: ", minDate);
+            if (timestamps.length) {
+                setMinDate(dayjs(Math.max(Math.min(...timestamps), minDate || 0)));
+                setMaxDate(dayjs(Math.max(...timestamps) + 24 * 60 * 60 * 1000)); // Add 1 day to include max date
+            }
+            console.log("Mindate2: ", minDate);
         }
       })
       .catch((error) => {
@@ -163,6 +164,8 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
           )}
           onChange={(event, newValue) => {
             setAsset(newValue.asset || null);
+            setMinDate(newValue.buy_date ? dayjs(newValue.buy_date) : null);
+            console.log("MinDate set to:", minDate);
             console.log("Selected asset:", newValue.asset);
             setQuantity(1);
           }}
@@ -222,6 +225,11 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
                 >
                   Confirm Sell
                 </Button>
+                {isMarketClosed(dayjs()) && (
+                  <Typography sx={{ mt: 2, color: "error.main" }}>
+                    The market is currently closed. You can only add existing sales on closed days.
+                  </Typography>
+                )}
               </>
             )}
 
@@ -295,6 +303,16 @@ function SellTransaction({ portfolioId, holdings, open, onClose }) {
                 >
                   Confirm Sell
                 </Button>
+                {isMarketClosed(selectedDate) && (
+                  <Typography sx={{ mt: 2, color: "error.main" }}>
+                    The market was closed on the selected date. You can only add sales for dates when the market was open.
+                  </Typography>
+                )}
+                {selectedDate && (minDate > selectedDate || maxDate < selectedDate) && (
+                  <Typography sx={{ mt: 2, color: "error.main" }}>
+                    The selected date is out of range for this stock. Please select a date between {minDate?.format("YYYY-MM-DD")} and {maxDate?.format("YYYY-MM-DD")}.
+                  </Typography>
+                )}
               </>
             )}
           </Box>

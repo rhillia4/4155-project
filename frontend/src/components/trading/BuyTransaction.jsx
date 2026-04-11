@@ -186,6 +186,11 @@ function BuyTransaction({ portfolioId, open, onClose }) {
                 >
                   Confirm Purchase
                 </Button>
+                {isMarketClosed(dayjs()) && (
+                  <Typography sx={{ mt: 2, color: "error.main" }}>
+                    The market is currently closed. You can only add existing positions on closed days.
+                  </Typography>
+                )}
               </>
             )}
 
@@ -233,9 +238,11 @@ function BuyTransaction({ portfolioId, open, onClose }) {
                 <Button
                   variant="contained"
                   disabled={isMarketClosed(selectedDate)}
+
                   sx={{ mt: 2 }}
                   onClick={async () => {
                     try {
+                      console.log(selectedDateStr);
                       await createTransaction(portfolioId, {
                         asset: asset.id,
                         transaction_type: "BUY",
@@ -252,6 +259,16 @@ function BuyTransaction({ portfolioId, open, onClose }) {
                 >
                   Confirm Purchase
                 </Button>
+                {isMarketClosed(selectedDate) && (
+                  <Typography sx={{ mt: 2, color: "error.main" }}>
+                    This date is outside of the open market days.
+                  </Typography>
+                )}
+                {selectedDate && (minDate > selectedDate || maxDate < selectedDate) && (
+                  <Typography sx={{ mt: 2, color: "error.main" }}>
+                    The selected date is out of range for this stock. Please select a date between {minDate?.format("YYYY-MM-DD")} and {maxDate?.format("YYYY-MM-DD")}.
+                  </Typography>
+                )}
               </>
             )}
           </Box>

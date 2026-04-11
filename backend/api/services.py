@@ -19,7 +19,8 @@ def apply_transaction(*, portfolio: Portfolio, asset: Asset, tx_type: str, trans
                 asset=asset,
                 shares=shares,
                 remaining_shares=shares,
-                buy_price=price
+                buy_price=price,
+                buy_date=transaction_date
             )
 
         elif tx_type == Transaction.SELL:

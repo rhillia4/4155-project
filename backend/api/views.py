@@ -127,7 +127,7 @@ class TransactionListCreateView(generics.ListCreateAPIView):
                 tx_type=data["transaction_type"],
                 transaction_date=data["transaction_date"],
                 shares=data["shares"],
-                price=data["price"]
+                price=data["price"],
             )
 
 
