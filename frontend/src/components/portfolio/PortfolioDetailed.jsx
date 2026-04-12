@@ -42,22 +42,24 @@ function PortfolioDetailed() {
       getTransactions(portfolio.id),
       getHoldings(portfolio.id)
     ]);
+    console.log('Refreshed Transactions:', newHoldings);
     setTransactions(newTransactions);
     setHoldings(newHoldings);
   };
-
+  
   useEffect(() => {
     if (!portfolio?.id) return;
-
+    
     const loadData = async () => {
       setLoading(true);
-
+      
       try {
         const [newTransactions, newHoldings, newSnapshots] = await Promise.all([
           getTransactions(portfolio.id),
           getHoldings(portfolio.id),
           getPortfolioSnapshotDetails(portfolio.id),
         ]);
+        console.log('Refreshed Transactions:', newHoldings);
         setTransactions(newTransactions);
         setHoldings(newHoldings);
         setSnapshots(newSnapshots);
@@ -72,11 +74,11 @@ function PortfolioDetailed() {
   }, [portfolio?.id]);
 
   return (
-    <Box sx={{ width: '100%', height: '100%'}}> {/* Full width & height of parent */}
+    <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}> {/* Full width & height of parent */}
       
       <PortfolioHeader holdings={holdings} />
 
-      <Grid container sx={{ m: 4, gap: 2, width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <Grid container sx={{ gap: 2, width: '100%', display: 'flex', justifyContent: 'space-around', height: '350px'}}>
         <Grid > 
           <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
         </Grid>
