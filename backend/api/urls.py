@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import *
+from .budget_views import BudgetProfileView, BudgetTransactionListCreateView, BudgetTransactionDetailView
 
 urlpatterns = [
     # --- Auth ---
@@ -30,4 +31,9 @@ urlpatterns = [
 
     # --- Stock Prices ---
     path('stock-price/<str:symbol>/', StockPriceListView.as_view(), name='stock-price-list'),
+
+    # --- Budget ---
+    path('budget/profile/', BudgetProfileView.as_view(), name='budget-profile'),
+    path('budget/transactions/', BudgetTransactionListCreateView.as_view(), name='budget-transaction-list-create'),
+    path('budget/transactions/<int:pk>/', BudgetTransactionDetailView.as_view(), name='budget-transaction-detail'),
 ]

@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Portfolio, PortfolioSnapshot, Asset, Holding, Transaction, StockPrice, User
+from .models import Portfolio, PortfolioSnapshot, Asset, Holding, Transaction, StockPrice, User, BudgetProfile, BudgetTransaction
 
 # --- Assets ---
 class AssetSerializer(serializers.ModelSerializer):
@@ -90,3 +90,28 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', ''),
         )
         return user
+    
+# --- Budget ---
+class BudgetProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BudgetProfile
+        fields = [
+            "id",
+            "monthly_income",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "updated_at"]
+ 
+ 
+class BudgetTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BudgetTransaction
+        fields = [
+            "id",
+            "date",
+            "item",
+            "category",
+            "amount",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]

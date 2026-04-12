@@ -88,3 +88,23 @@ export const getSymbols = () =>
 
 export const getStockData = (symbol) =>
   api.get(`/stock-price/${symbol}/`);
+
+// Budget
+
+export const getBudgetProfile = () =>
+  api.get("/budget/profile/");
+ 
+export const updateBudgetProfile = (data) =>
+  api.put("/budget/profile/", data);
+ 
+export const getBudgetTransactions = () =>
+  api.get("/budget/transactions/");
+ 
+export const createBudgetTransaction = (data) =>
+  api.post("/budget/transactions/", data);
+ 
+export const updateBudgetTransaction = (id, data) =>
+  api.put(`/budget/transactions/${id}/`, data);
+ 
+export const deleteBudgetTransaction = (id) =>
+  api.delete(`/budget/transactions/${id}/`);
