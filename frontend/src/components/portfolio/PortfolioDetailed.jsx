@@ -79,11 +79,11 @@ function PortfolioDetailed() {
       <PortfolioHeader holdings={holdings} />
 
       <Grid container sx={{ gap: 2, width: '100%', display: 'flex', justifyContent: 'space-around', height: '350px'}}>
-        <Grid > 
+        <Grid sx={{width: "40%"}}> 
           <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
         </Grid>
         
-        <Grid > 
+        <Grid sx={{width: "40%"}}> 
           <PortfolioComposition holdings={holdings} />
         </Grid>
       </Grid>

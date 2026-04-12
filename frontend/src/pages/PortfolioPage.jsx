@@ -153,9 +153,9 @@ function PortfolioPage() {
           enrichedPortfolios.map((p) => (
             <Grid
               key={p.id}
-              sx={{ display: 'flex', justifyContent: 'center' }}
+              sx={{ display: 'flex', justifyContent: 'center', width: '100%', height: '100%' }}
             >
-              <Card sx={{ width: '100%', height: '100%' }}>
+              <Card sx={{ width: '40%', height: '100%' }}>
                 <CardActionArea
                   onClick={() => setPortfolio(p)}
                   sx={{

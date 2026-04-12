@@ -1,11 +1,16 @@
-import React, { useEffect } from "react";import { Box, Typography, useTheme } from "@mui/material";
+import React, { use, useEffect, useState } from "react";
+import { Box, Typography, useTheme, Grid, Card, CardActionArea, CardContent } from "@mui/material";
 import { useBudget } from "../context/BudgetContext";
 import BudgetPieChart from "../components/charts/BudgetPieChart.jsx";
 import StockIncomeGraph from "../components/portfolio/StockIncomeGraph.jsx";
 import PortfolioComposition from "../components/portfolio/PortfolioComposition.jsx";
 import { usePortfolioContext } from '../context/PortfolioContext.jsx';
-import { useHoldings } from '../hooks/useHoldings.js';
 import { usePortfolioSnapshots } from '../hooks/usePortfolioSnapshot.js';
+import { usePortfolios } from '../hooks/usePortfolios.js';
+import { useHoldings } from '../hooks/useHoldings.js';
+import { useNavigate } from 'react-router-dom';
+
+
 import {
   BarChart,
   Bar,
@@ -28,12 +33,63 @@ const categories = [
  
 function DashboardPage() {
   const { transactions, budgetLimits } = useBudget();
-  const { portfolio } = usePortfolioContext();
-  const { holdings = [], getHoldings } = useHoldings();
-  const { snapshots = [], getPortfolioSnapshotDetails } = usePortfolioSnapshots(portfolio?.id);
+  const [enrichedPortfolios, setEnrichedPortfolios] = useState([]);
+  const [portfolios, setPortfolios] = useState([]);
+  const [bestPortfolio, setBestPortfolio] = useState(null);
+  const { portfolio, setPortfolio } = usePortfolioContext();
+  const { fetchPortfolios } = usePortfolios();
+  const { getHoldings } = useHoldings();
+  const { getPortfolioSnapshotDetails } = usePortfolioSnapshots(portfolio?.id);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadPortfolios = async () => {
+      const data = await fetchPortfolios();
+      setPortfolios(data);
+      console.log("Fetched portfolios:", data);
+    };
+
+    loadPortfolios();
+  }, []);
+
+  useEffect(() => {
+    if (!portfolios?.length) return;
+
+    const loadData = async () => {
+      try {
+        const enriched = await Promise.all(
+          portfolios.map(async (p) => {
+            const [holdings, snapshots] = await Promise.all([
+              getHoldings(p.id),
+              getPortfolioSnapshotDetails(p.id),
+            ]);
+
+            return {
+              ...p,
+              holdings,
+              snapshots,
+            };
+          })
+        );
+        setEnrichedPortfolios(enriched);
+      } catch (err) {
+        console.error(err.message || 'Failed to load portfolio data');
+      } 
+    };
+
+    loadData();
+  }, [portfolios]);
+
+  useEffect(() => {
+    const bestPortfolio = enrichedPortfolios.reduce((best, p) => {
+      const totalValue = p.holdings.reduce((sum, h) => sum + (h.value || 0), 0);
+      return totalValue > (best.totalValue || 0) ? { ...p, totalValue } : best;
+    }, {});
+    setBestPortfolio(bestPortfolio);
+  }, [enrichedPortfolios]);
+
   useEffect(() => {
     if (portfolio?.id) {
       getHoldings(portfolio.id);
@@ -179,22 +235,63 @@ function DashboardPage() {
  
       {/* RIGHT SIDE */}
       <Box sx={{ ...cardStyle, flex: 1, minWidth: 0 }}>
-        <Typography
-          align="center"
-          variant="h6"
-          gutterBottom
-          sx={{ color: theme.palette.text.primary, flexShrink: 0 }}
-        >
-          Portfolio Overview
-        </Typography>
  
         {/* RESERVED AREA FOR PORTFOLIO IMPLEMENTATION */}
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {/* The exactly-the-same charts */}
-            <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
-            <PortfolioComposition holdings={holdings} />
-          </Box>
+            {bestPortfolio && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: "space-between" }}>
+                <Typography variant="h6" component="h2" sx={{ mt: 2 }}>
+                  {bestPortfolio.name}
+                </Typography>
+                <Grid
+                  key={bestPortfolio.id}
+                  sx={{ gap: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}
+                >
+                  <Card sx={{ width: '100%', height: '45%' }}>
+                    <CardActionArea
+                      onClick={() => {setPortfolio(bestPortfolio); navigate('/portfolio');}}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      <CardContent sx={{ width: '100%', height: '100%' }}>
+                        <StockIncomeGraph
+                          snapshots={bestPortfolio.snapshots}
+                          holdings={bestPortfolio.holdings}
+                        />
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                  <Card sx={{ width: '100%', height: '45%' }}>
+                    <CardActionArea
+                      onClick={() => {setPortfolio(bestPortfolio); navigate('/portfolio');}}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      <CardContent sx={{ width: '100%', height: '100%' }}>
+                        <PortfolioComposition
+                          holdings={bestPortfolio.holdings}
+                        />
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              </Box>
+            ) || (
+              <Typography align="center" variant="body1" sx={{ color: theme.palette.text.secondary }}>
+                No portfolio data available. Please create a portfolio to see the overview.
+              </Typography>
+            )}
       </Box>
     </Box>
   );

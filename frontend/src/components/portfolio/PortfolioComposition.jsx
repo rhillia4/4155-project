@@ -25,15 +25,21 @@ function PortfolioComposition({ holdings }) {
   }, [rows]);
 
   return (
-    <Paper sx={{ p: 2,  height: '350', display: 'flex', flexDirection: 'column'}}>
+    <Paper sx={{ p: 2,  height: '100%', display: 'flex', flexDirection: 'column'}}>
       <Typography variant="h6" color="white">Portfolio Composition</Typography>
       <Box sx={{ height: 250, mt: 2 }}>
+          {chartData.length > 0 ? (
         <PieChart series={[{  
             data: chartData,
             innerRadius: 30,
             outerRadius: 120,
           }]} 
       />
+          ) : (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Typography color="textSecondary">No data yet</Typography>
+            </Box>
+          )}
       </Box>
     </Paper>
   );

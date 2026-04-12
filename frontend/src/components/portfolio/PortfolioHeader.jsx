@@ -3,8 +3,8 @@ import { Box, Typography, Paper, Grid } from '@mui/material';
 
 function PortfolioHeader({ holdings }) {
   const stats = useMemo(() => {
-    if (!holdings || holdings.length === 0) return { investment: 0, positions: 0 };
-    const totalValue = holdings.reduce((sum, h) => sum + (h.value), 0);
+    if (!holdings || holdings.length === 0) return { totalValue: 0, investment: 0, positions: 0, roi: 0 };
+    const totalValue = holdings.reduce((sum, h) => sum + (h.value), 0) || 0;
     const investment = holdings.reduce((sum, h) => sum + (h.remaining_shares * h.buy_price), 0);
     // Counting unique symbols using a Set
     const positions = new Set(holdings.map(h => h.asset.symbol)).size;

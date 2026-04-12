@@ -34,7 +34,7 @@ function StockIncomeGraph({ snapshots, holdings }) {
     }, [snapshots, holdings]);
 
     return (
-    <Paper sx={{ p: 2, height: 332, display: 'flex', flexDirection: 'column' }}>
+    <Paper sx={{ p: 2, height: "100%", display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
         Portfolio History
       </Typography>
