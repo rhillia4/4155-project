@@ -14,11 +14,10 @@ function StockIncomeGraph({ snapshots, holdings }) {
             );
             
             const values = sortedSnapshots.map(snap => snap.total_value);
-            console.log("Initial values from snapshots:", values);
             if (new Date(snapshots[0].timestamp).toLocaleDateString() === new Date().toLocaleDateString()) {
-                values[0] = holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0);
+                values[0] = holdings.reduce((sum, h) => sum + (h.value), 0);
             }else {
-                values.unshift(holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0));
+                values.unshift(holdings.reduce((sum, h) => sum + (h.value), 0));
             }
 
             setXAxisData(
@@ -30,12 +29,12 @@ function StockIncomeGraph({ snapshots, holdings }) {
             console.log("Processed snapshots for graph:", { xaxisData, seriesData });
           }else if (holdings && holdings.length > 0) {
             setXAxisData([new Date().toLocaleDateString()]);
-            setSeriesData([holdings.reduce((sum, h) => sum + (h.shares * h.buy_price), 0)]);
+            setSeriesData([holdings.reduce((sum, h) => sum + (h.value), 0)]);
           }
     }, [snapshots, holdings]);
 
     return (
-    <Paper sx={{ p: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider', height: 350, display: 'flex', flexDirection: 'column' }}>
+    <Paper sx={{ p: 2, height: 332, display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
         Portfolio History
       </Typography>
