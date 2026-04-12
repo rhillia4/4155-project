@@ -10,12 +10,13 @@ import {
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import vestlyLogo from "../../assets/VestlyImg.png";
  
 function Header() {
   const { user } = useAuth();
   const theme = useTheme();
+  const navigate = useNavigate();
  
   const isDark = theme.palette.mode === "dark";
  
@@ -31,17 +32,14 @@ function Header() {
   const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
   const firstInitial = displayName.charAt(0);
  
-  // Theme-aware gradient for header
   const headerGradient = isDark
     ? "linear-gradient(180deg, #1A1410 0%, #141009 100%)"
     : "linear-gradient(180deg, #F4F1EC 0%, #EEE6DD 100%)";
  
-  // Theme-aware shadow
   const headerShadow = isDark
     ? "0 2px 6px rgba(0, 0, 0, 0.3)"
     : "0 2px 6px rgba(111, 90, 69, 0.08)";
  
-  // Theme-aware avatar/hover tints
   const avatarBg = isDark
     ? "rgba(168, 134, 94, 0.18)"
     : "rgba(111, 90, 69, 0.16)";
@@ -229,8 +227,14 @@ function Header() {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem disabled>{displayName}</MenuItem>
-          <MenuItem disabled>Profile</MenuItem>
+          <MenuItem
+            onClick={() => {
+              closeMenu();
+              navigate("/profile");
+            }}
+          >
+            Profile
+          </MenuItem>
         </Menu>
       </Box>
     </Box>

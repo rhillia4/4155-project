@@ -41,7 +41,9 @@ function Sidebar() {
   const navButtonSx = {
     justifyContent: open ? "flex-start" : "center",
     minHeight: 46,
-    width: "100%",
+    width: open ? "100%" : "44px !important",
+    maxWidth: open ? "100%" : "44px !important",
+    mx: "auto",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "clip",
@@ -55,13 +57,16 @@ function Sidebar() {
  
   const utilityButtonSx = {
     justifyContent: open ? "flex-start" : "center",
-    minHeight: 42,
+    minHeight: 36,
     width: "100%",
+    maxWidth: "100%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "clip",
     px: open ? 1.5 : 0,
     borderRadius: 2,
+    fontSize: open ? "0.875rem" : "1rem",
+    minWidth: 0,
     transition: "background-color 0.2s ease, color 0.2s ease",
     "&:hover": {
       backgroundColor: hoverBg,
@@ -95,7 +100,7 @@ function Sidebar() {
   return (
     <Box
       sx={{
-        width: open ? 240 : 76,
+        width: open ? 240 : 64,
         height: "100%",
         overflow: "hidden",
         transition: "width 260ms ease",
@@ -107,10 +112,11 @@ function Sidebar() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        boxSizing: "border-box",
       }}
     >
       {/* TOP */}
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: open ? 2 : 1, boxSizing: "border-box" }}>
         <Button
           variant="outlined"
           onClick={() => setOpen((prev) => !prev)}
@@ -118,12 +124,13 @@ function Sidebar() {
             mb: 2,
             width: "100%",
             minWidth: 0,
+            px: open ? 2 : 0,
           }}
         >
           {open ? "Collapse" : ">"}
         </Button>
  
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, alignItems: open ? "stretch" : "center" }}>
           {navItems.map((item) => {
             const active = location.pathname === item.path;
  
@@ -151,75 +158,85 @@ function Sidebar() {
       {/* BOTTOM UTILITY AREA */}
       <Box
         sx={{
-          p: 2,
+          p: open ? 2 : 1,
           borderTop: `1px solid ${theme.palette.divider}`,
           background: utilityAreaBg,
+          boxSizing: "border-box",
+          width: "100%",
         }}
       >
         <Box
           sx={{
             border: utilityCardBorder,
             borderRadius: 3,
-            p: 1.25,
+            p: open ? 1.25 : 1,
             backgroundColor: utilityCardBg,
             boxShadow: utilityCardShadow,
-            minHeight: open ? 108 : 120,
-            display: "grid",
-            gridTemplateColumns: open ? "1fr 1fr" : "1fr",
+            width: "100%",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: open ? "row" : "column",
             alignItems: "center",
-            gap: 1.25,
+            justifyContent: "center",
+            gap: open ? 1.25 : 1,
             transition: "background-color 0.2s ease",
           }}
         >
-          {/* LEFT: LOGO */}
+          {/* LOGO */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               borderRight: open ? logoDivider : "none",
+              borderBottom: !open ? logoDivider : "none",
               pr: open ? 1 : 0,
+              pb: !open ? 1 : 0,
+              width: open ? "50%" : "100%",
             }}
           >
             <img
               src={vestlyLogo}
               alt="Vestly Logo"
               style={{
-                height: open ? 70 : 52,
+                height: open ? 70 : 36,
                 width: "auto",
+                maxWidth: "100%",
                 objectFit: "contain",
                 opacity: isDark ? 0.75 : 0.96,
                 filter: isDark ? "brightness(0.85) sepia(0.15)" : "none",
-                transition: "opacity 0.2s ease, filter 0.2s ease",
+                transition: "height 0.26s ease, opacity 0.2s ease, filter 0.2s ease",
               }}
             />
           </Box>
  
-          {/* RIGHT: SETTINGS + LOGOUT */}
+          {/* SETTINGS + LOGOUT */}
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 1,
+              gap: 0.5,
               justifyContent: "center",
+              width: open ? "50%" : "100%",
+              minWidth: 0,
             }}
           >
             <Button
               onClick={openMenu}
               variant="text"
               sx={utilityButtonSx}
-              startIcon={open ? <SettingsIcon /> : null}
+              startIcon={open ? <SettingsIcon fontSize="small" /> : null}
             >
-              {open ? "Settings" : "⚙"}
+              {open ? "Settings" : <SettingsIcon fontSize="small" />}
             </Button>
  
             <Button
               variant="text"
               onClick={logout}
               sx={utilityButtonSx}
-              startIcon={open ? <LogoutIcon /> : null}
+              startIcon={open ? <LogoutIcon fontSize="small" /> : null}
             >
-              {open ? "Logout" : "↩"}
+              {open ? "Logout" : <LogoutIcon fontSize="small" />}
             </Button>
           </Box>
         </Box>

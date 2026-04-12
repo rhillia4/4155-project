@@ -46,7 +46,7 @@ function renderLabel(props) {
       fill="#6F5A45"
       textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
-      fontSize="16"
+      fontSize="12"
       fontWeight="600"
     >
       {`${(percent * 100).toFixed(0)}%`}
@@ -68,89 +68,104 @@ function BudgetPieChart({ budget }) {
     }))
     .filter((entry) => entry.value > 0);
 
-  return (
-    <Box sx={{ width: "100%", height: 380 }}>
-      <ResponsiveContainer width="100%" height={285}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={100}
-            cy="56%"
-            label={renderLabel}
-            labelLine={false}
-            stroke="#F4F1EC"
-            strokeWidth={2}
-            isAnimationActive={true}
-            animationBegin={0}
-            animationDuration={650}
-            animationEasing="ease-out"
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={CATEGORY_COLORS[entry.name] || "#DCCFC1"}
-                fillOpacity={0.92}
-              />
-            ))}
-          </Pie>
-
-          <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
-        </PieChart>
-      </ResponsiveContainer>
-
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+    const entry = payload[0];
+    return (
       <Box
         sx={{
-          mt: 2.5,
-          display: "flex",
-          justifyContent: "center",
+          backgroundColor: theme.palette.background.paper,
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 2,
+          px: 1.5,
+          py: 1,
         }}
       >
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, auto)",
-            rowGap: 1.2,
-            columnGap: 2.5,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {data.map((entry) => (
+        <Typography sx={{ fontSize: "0.85rem", fontWeight: 600, color: theme.palette.text.primary }}>
+          {entry.name}
+        </Typography>
+        <Typography sx={{ fontSize: "0.82rem", color: theme.palette.text.secondary }}>
+          ${Number(entry.value).toFixed(2)}
+        </Typography>
+      </Box>
+    );
+  };
+
+  return (
+    <Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "row", gap: 1 }}>
+ 
+      {/* Chart */}
+      <Box sx={{ flex: 1, minWidth: 0, minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              outerRadius="55%"
+              cx="40%"
+              cy="50%"
+              label={renderLabel}
+              labelLine={false}
+              stroke={theme.palette.background.paper}
+              strokeWidth={2}
+              isAnimationActive={true}
+              animationBegin={0}
+              animationDuration={650}
+              animationEasing="ease-out"
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={index}
+                  fill={CATEGORY_COLORS[entry.name] || "#DCCFC1"}
+                  fillOpacity={0.92}
+                />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+      </Box>
+ 
+      {/* Legend */}
+      <Box
+        sx={{
+          flexShrink: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 1,
+          pr: 1,
+        }}
+      >
+        {data.map((entry) => (
+          <Box
+            key={entry.name}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+          >
             <Box
-              key={entry.name}
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.75,
-                px: 0.5,
-                minWidth: 0,
+                width: 10,
+                height: 10,
+                borderRadius: "2px",
+                backgroundColor: CATEGORY_COLORS[entry.name],
+                flexShrink: 0,
+              }}
+            />
+            <Typography
+              sx={{
+                fontSize: "0.8rem",
+                fontWeight: 500,
+                color: theme.palette.text.secondary,
+                whiteSpace: "nowrap",
               }}
             >
-              <Box
-                sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: "2px",
-                  backgroundColor: CATEGORY_COLORS[entry.name],
-                  flexShrink: 0,
-                }}
-              />
-              <Typography
-                sx={{
-                  fontSize: "0.95rem",
-                  fontWeight: 500,
-                  color: theme.palette.text.secondary,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {entry.name}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
+              {entry.name}
+            </Typography>
+          </Box>
+        ))}
       </Box>
+ 
     </Box>
   );
 }

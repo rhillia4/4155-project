@@ -8,6 +8,8 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import BudgetPage from "./pages/BudgetPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import { PortfolioProvider } from "./context/PortfolioContext.jsx";
 
 // import GamePage from "./pages/GamePage.jsx";
 // import GameLobbyPage from "./pages/GameLobbyPage.jsx";
@@ -67,6 +69,9 @@ function AppRoutes() {
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/about" element={<AboutPage />} />
+
+          {/* Profile */}
+          <Route path="/profile" element={<ProfilePage />} />
 
         </Route>
       </Route>

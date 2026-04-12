@@ -7,9 +7,13 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  LineChart, Line, Legend,
+} from "recharts";
 import { useBudget } from "../context/BudgetContext";
- 
+
 const categories = [
   "Housing",
   "Transportation",
@@ -19,7 +23,7 @@ const categories = [
   "Other",
   "Income",
 ];
- 
+
 const standardPercentages = {
   Housing: 30,
   Transportation: 15,
@@ -29,14 +33,16 @@ const standardPercentages = {
   Other: 12.5,
   Income: 0,
 };
- 
-const capitalizeWords = (str) =>
-  String(str || "")
-    .split(" ")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(" ");
- 
+
+const CATEGORY_COLORS = {
+  Housing: "#C9B8D4",
+  Transportation: "#A8BFC9",
+  Insurance: "#D8B4A0",
+  Food: "#B7C4A3",
+  Utilities: "#E6CBA8",
+  Other: "#DCCFC1",
+};
+
 const emptyDraft = {
   id: null,
   date: "",
@@ -44,11 +50,25 @@ const emptyDraft = {
   category: "Housing",
   amount: "",
 };
- 
+
+const CHART_OPTIONS = [
+  { key: "donut",     label: "Overview" },
+  { key: "bar",       label: "By Category" },
+  { key: "breakdown", label: "Breakdown" },
+  { key: "daily",     label: "Daily Trend" },
+];
+
+const chartTitles = {
+  donut:     "Overview",
+  bar:       "By Category",
+  breakdown: "Spending Breakdown",
+  daily:     "Daily Spending Trend",
+};
+
 function BudgetPage() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
- 
+
   const {
     transactions,
     setTransactions,
@@ -57,19 +77,41 @@ function BudgetPage() {
     monthlyIncome,
     setMonthlyIncome,
   } = useBudget();
- 
+
+  const [activeChart, setActiveChart] = useState("donut");
   const [sortField, setSortField] = useState("date");
   const [sortDirection, setSortDirection] = useState("desc");
- 
   const [addingNew, setAddingNew] = useState(false);
-  const [newDraft, setNewDraft] = useState({
-    ...emptyDraft,
-    id: Date.now(),
-  });
- 
+  const [newDraft, setNewDraft] = useState({ ...emptyDraft, id: Date.now() });
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState(emptyDraft);
- 
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+    return (
+      <Box
+        sx={{
+          backgroundColor: theme.palette.background.paper,
+          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 2,
+          px: 1.5,
+          py: 1,
+        }}
+      >
+        {label && (
+          <Typography sx={{ fontSize: "0.82rem", fontWeight: 600, color: theme.palette.text.primary, mb: 0.5 }}>
+            {label}
+          </Typography>
+        )}
+        {payload.map((entry, i) => (
+          <Typography key={i} sx={{ fontSize: "0.82rem", color: theme.palette.text.secondary }}>
+            {entry.name}: ${Number(entry.value).toFixed(2)}
+          </Typography>
+        ))}
+      </Box>
+    );
+  };
+
   const cardStyle = {
     borderRadius: 3,
     p: 3,
@@ -83,7 +125,7 @@ function BudgetPage() {
       ? "1px solid rgba(168, 134, 94, 0.14)"
       : "1px solid rgba(111, 90, 69, 0.12)",
   };
- 
+
   const miniStatStyle = {
     border: isDark
       ? "2px solid rgba(168, 134, 94, 0.2)"
@@ -98,7 +140,7 @@ function BudgetPage() {
       ? "rgba(255, 255, 255, 0.04)"
       : "rgba(255, 255, 255, 0.72)",
   };
- 
+
   const rowStyle = {
     border: isDark
       ? "1px solid rgba(168, 134, 94, 0.12)"
@@ -117,7 +159,7 @@ function BudgetPage() {
         : "0 6px 14px rgba(111, 90, 69, 0.05)",
     },
   };
- 
+
   const newRowStyle = {
     border: isDark
       ? "1px solid rgba(168, 134, 94, 0.16)"
@@ -130,11 +172,11 @@ function BudgetPage() {
       ? "0 4px 10px rgba(0, 0, 0, 0.2)"
       : "0 4px 10px rgba(111, 90, 69, 0.04)",
   };
- 
+
   const headerBorderColor = isDark
     ? "rgba(168, 134, 94, 0.2)"
     : "rgba(111, 90, 69, 0.16)";
- 
+
   const categoryRowStyle = {
     border: isDark
       ? "1px solid rgba(168, 134, 94, 0.1)"
@@ -151,7 +193,7 @@ function BudgetPage() {
       transform: "translateY(-1px)",
     },
   };
- 
+
   const rowGrid = {
     display: "grid",
     gridTemplateColumns: "120px 150px 1.7fr 1.2fr 130px 110px",
@@ -159,68 +201,115 @@ function BudgetPage() {
     alignItems: "center",
     width: "100%",
   };
- 
+
+  const gridStroke = isDark ? "rgba(168, 134, 94, 0.12)" : "rgba(111, 90, 69, 0.12)";
+  const lineColor = isDark ? "#A8865E" : "#6F5A45";
+
   const createBudget = () => {
     if (!monthlyIncome || Number(monthlyIncome) <= 0) return;
- 
     const limits = {};
     Object.keys(standardPercentages).forEach((cat) => {
       limits[cat] = parseFloat(
         ((Number(monthlyIncome) * standardPercentages[cat]) / 100).toFixed(2)
       );
     });
- 
     setBudgetLimits(limits);
     setTransactions([]);
     setAddingNew(false);
     setEditingId(null);
   };
- 
+
+  // FIX: income transactions add to balance, spending subtracts
   const totalIncome = useMemo(() => {
     const extraIncome = transactions
-      .filter((t) => t.category === "Income")
+      .filter((t) => String(t.category).toUpperCase() === "INCOME")
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
- 
     return (Number(monthlyIncome) || 0) + extraIncome;
   }, [monthlyIncome, transactions]);
- 
+
   const totalAmountSpent = useMemo(
     () =>
       transactions
-        .filter((t) => t.category !== "Income")
+        .filter((t) => String(t.category).toUpperCase() !== "INCOME")
         .reduce((sum, t) => sum + Number(t.amount || 0), 0),
     [transactions]
   );
- 
+
   const remainingBalance = totalIncome - totalAmountSpent;
- 
+
   const overviewPieData = [
     { name: "Remaining", value: Math.max(remainingBalance, 0) },
     { name: "Spent", value: totalAmountSpent },
   ];
- 
+
+  const breakdownPieData = useMemo(() =>
+    Object.keys(CATEGORY_COLORS)
+      .map((cat) => ({
+        name: cat,
+        value: transactions
+          .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
+          .reduce((sum, t) => sum + Number(t.amount || 0), 0),
+      }))
+      .filter((d) => d.value > 0),
+    [transactions]
+  );
+
+  // FIX: timezone-safe date parsing — avoids UTC shift dropping day 1
+  const dailySpendingData = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const dailyMap = {};
+    for (let d = 1; d <= daysInMonth; d++) {
+      dailyMap[d] = 0;
+    }
+
+    transactions
+      .filter((t) => String(t.category).toUpperCase() !== "INCOME" && t.date)
+      .forEach((t) => {
+        const [tYear, tMonth, tDay] = t.date.split("-").map(Number);
+        if (tYear === year && tMonth - 1 === month) {
+          dailyMap[tDay] = (dailyMap[tDay] || 0) + Number(t.amount || 0);
+        }
+      });
+
+    return Object.entries(dailyMap).map(([day, total]) => ({
+      day: `${day}`,
+      total,
+    }));
+  }, [transactions]);
+
+  const barData = useMemo(() => {
+    if (!budgetLimits) return [];
+    return categories
+      .filter((cat) => cat !== "Income")
+      .map((cat) => {
+        const spent = transactions
+          .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
+          .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+        const limit = Number(budgetLimits[cat] || 0);
+        return {
+          category: cat,
+          under: Math.min(spent, limit),
+          over: spent > limit ? spent - limit : 0,
+        };
+      });
+  }, [budgetLimits, transactions]);
+
   const categoryRows = useMemo(() => {
     if (!budgetLimits) return [];
- 
     return categories.map((cat) => {
       const spent = transactions
         .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
- 
-      const allocated =
-        cat === "Income" ? 0 : Number(budgetLimits[cat] || 0);
- 
-      const remaining =
-        cat === "Income" ? spent : allocated - spent;
- 
-      return {
-        category: cat,
-        allocated,
-        remaining,
-      };
+      const allocated = cat === "Income" ? 0 : Number(budgetLimits[cat] || 0);
+      const remaining = cat === "Income" ? spent : allocated - spent;
+      return { category: cat, allocated, remaining };
     });
   }, [budgetLimits, transactions]);
- 
+
   const toggleSort = (field) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -229,63 +318,33 @@ function BudgetPage() {
     setSortField(field);
     setSortDirection(field === "date" ? "desc" : "asc");
   };
- 
+
   const sortedTransactions = useMemo(() => {
     const arr = [...transactions];
- 
     arr.sort((a, b) => {
-      if (sortField === "id") {
-        return sortDirection === "asc" ? a.id - b.id : b.id - a.id;
-      }
-      if (sortField === "date") {
-        return sortDirection === "asc"
-          ? new Date(a.date) - new Date(b.date)
-          : new Date(b.date) - new Date(a.date);
-      }
-      if (sortField === "item") {
-        return sortDirection === "asc"
-          ? a.item.localeCompare(b.item)
-          : b.item.localeCompare(a.item);
-      }
-      if (sortField === "category") {
-        return sortDirection === "asc"
-          ? a.category.localeCompare(b.category)
-          : b.category.localeCompare(a.category);
-      }
-      if (sortField === "amount") {
-        return sortDirection === "asc"
-          ? Number(a.amount) - Number(b.amount)
-          : Number(b.amount) - Number(a.amount);
-      }
+      if (sortField === "id") return sortDirection === "asc" ? a.id - b.id : b.id - a.id;
+      if (sortField === "date") return sortDirection === "asc" ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
+      if (sortField === "item") return sortDirection === "asc" ? a.item.localeCompare(b.item) : b.item.localeCompare(a.item);
+      if (sortField === "category") return sortDirection === "asc" ? a.category.localeCompare(b.category) : b.category.localeCompare(a.category);
+      if (sortField === "amount") return sortDirection === "asc" ? Number(a.amount) - Number(b.amount) : Number(b.amount) - Number(a.amount);
       return 0;
     });
- 
     return arr;
   }, [transactions, sortField, sortDirection]);
- 
+
   const startAddNew = () => {
     setEditingId(null);
     setAddingNew(true);
-    setNewDraft({
-      id: Date.now(),
-      date: "",
-      item: "",
-      category: "Housing",
-      amount: "",
-    });
+    setNewDraft({ id: Date.now(), date: "", item: "", category: "Housing", amount: "" });
   };
- 
+
   const cancelAddNew = () => {
     setAddingNew(false);
-    setNewDraft({
-      ...emptyDraft,
-      id: Date.now(),
-    });
+    setNewDraft({ ...emptyDraft, id: Date.now() });
   };
- 
+
   const saveNewTransaction = () => {
     if (!newDraft.date || !newDraft.item || newDraft.amount === "") return;
- 
     setTransactions((prev) => [
       {
         id: newDraft.id,
@@ -296,27 +355,22 @@ function BudgetPage() {
       },
       ...prev,
     ]);
- 
     cancelAddNew();
   };
- 
+
   const startEdit = (transaction) => {
     setAddingNew(false);
     setEditingId(transaction.id);
-    setEditDraft({
-      ...transaction,
-      amount: String(transaction.amount),
-    });
+    setEditDraft({ ...transaction, amount: String(transaction.amount) });
   };
- 
+
   const cancelEdit = () => {
     setEditingId(null);
     setEditDraft(emptyDraft);
   };
- 
+
   const saveEdit = () => {
     if (!editDraft.date || !editDraft.item || editDraft.amount === "") return;
- 
     setTransactions((prev) =>
       prev.map((t) =>
         t.id === editingId
@@ -330,33 +384,31 @@ function BudgetPage() {
           : t
       )
     );
- 
     cancelEdit();
   };
- 
+
   const sortHeaderStyle = (field) => ({
     fontWeight: 700,
     cursor: "pointer",
     userSelect: "none",
     transition: "0.2s ease",
     color: sortField === field ? theme.palette.primary.main : theme.palette.text.primary,
-    "&:hover": {
-      color: theme.palette.primary.main,
-      textDecoration: "underline",
-    },
+    "&:hover": { color: theme.palette.primary.main, textDecoration: "underline" },
   });
- 
+
   const amountColor = (category) =>
     category === "Income"
       ? isDark ? "#7FB187" : "#5E8B63"
       : isDark ? "#D47A70" : "#B65A4E";
- 
+
+  const showStats = activeChart === "donut";
+
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" align="center" gutterBottom sx={{ color: theme.palette.text.primary }}>
         Budget
       </Typography>
- 
+
       {!budgetLimits && (
         <Box sx={{ ...cardStyle, maxWidth: 680, mx: "auto", mt: 4 }}>
           <Typography variant="h6" align="center" gutterBottom>
@@ -365,7 +417,6 @@ function BudgetPage() {
           <Typography align="center" sx={{ mb: 3, color: theme.palette.text.secondary }}>
             Enter your monthly income and Vestly will generate a standard budget breakdown.
           </Typography>
- 
           <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
             <TextField
               label="Monthly Income"
@@ -379,89 +430,167 @@ function BudgetPage() {
           </Box>
         </Box>
       )}
- 
+
       {budgetLimits && (
         <>
           <Box sx={{ display: "flex", gap: 4, mb: 4, flexWrap: "wrap" }}>
-            {/* OVERVIEW */}
-            <Box sx={{ ...cardStyle, flex: 1, minWidth: 420 }}>
+
+            {/* OVERVIEW CARD */}
+            <Box sx={{ ...cardStyle, flex: 1, minWidth: 420, display: "flex", flexDirection: "column" }}>
               <Typography variant="h6" align="center" gutterBottom>
-                Overview
+                {chartTitles[activeChart]}
               </Typography>
- 
+
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 1.15fr",
+                  gridTemplateColumns: showStats ? "1fr 1.15fr" : "1fr",
                   gap: 2,
                   alignItems: "center",
+                  flex: 1,
                 }}
               >
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <Box sx={miniStatStyle}>
-                    <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
-                      Monthly Income
-                    </Typography>
-                    <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
-                      ${Number(totalIncome).toFixed(2)}
-                    </Typography>
-                  </Box>
- 
-                  <Box sx={miniStatStyle}>
-                    <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
-                      Total Amount Spent
-                    </Typography>
-                    <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
-                      ${Number(totalAmountSpent).toFixed(2)}
-                    </Typography>
-                  </Box>
- 
-                  <Box sx={miniStatStyle}>
-                    <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
-                      Amount Remaining
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{ color: remainingBalance >= 0 ? amountColor("Income") : amountColor("Other") }}
-                    >
-                      ${Number(remainingBalance).toFixed(2)}
-                    </Typography>
-                  </Box>
-                </Box>
- 
-                <Box sx={{ height: 280, pt: 3 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={overviewPieData}
-                        dataKey="value"
-                        nameKey="name"
-                        outerRadius={100}
-                        innerRadius={45}
+                {showStats && (
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    <Box sx={miniStatStyle}>
+                      <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
+                        Monthly Income
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
+                        ${Number(totalIncome).toFixed(2)}
+                      </Typography>
+                    </Box>
+                    <Box sx={miniStatStyle}>
+                      <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
+                        Total Amount Spent
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
+                        ${Number(totalAmountSpent).toFixed(2)}
+                      </Typography>
+                    </Box>
+                    <Box sx={miniStatStyle}>
+                      <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
+                        Amount Remaining
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{ color: remainingBalance >= 0 ? amountColor("Income") : amountColor("Other") }}
                       >
-                        <Cell fill={isDark ? "#7FB187" : "#8EAE7A"} />
-                        <Cell fill={isDark ? "#D47A70" : "#B65A4E"} />
-                      </Pie>
-                      <Tooltip
-                        formatter={(value) => `$${Number(value).toFixed(2)}`}
-                        contentStyle={{
-                          backgroundColor: theme.palette.background.paper,
-                          border: `1px solid ${theme.palette.divider}`,
-                          color: theme.palette.text.primary,
-                        }}
-                      />
-                    </PieChart>
+                        ${Number(remainingBalance).toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
+
+                <Box sx={{ height: 280, pt: showStats ? 3 : 1 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    {activeChart === "donut" ? (
+                      <PieChart>
+                        <Pie
+                          data={overviewPieData}
+                          dataKey="value"
+                          nameKey="name"
+                          outerRadius={100}
+                          innerRadius={45}
+                        >
+                          <Cell fill={isDark ? "#7FB187" : "#8EAE7A"} />
+                          <Cell fill={isDark ? "#D47A70" : "#B65A4E"} />
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                      </PieChart>
+                    ) : activeChart === "bar" ? (
+                      <BarChart layout="vertical" data={barData} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                        <XAxis type="number" tick={{ fill: theme.palette.text.secondary, fontSize: 11 }} stroke={theme.palette.text.secondary} />
+                        <YAxis type="category" dataKey="category" width={100} tick={{ fill: theme.palette.text.primary, fontSize: 11 }} stroke={theme.palette.text.secondary} tickFormatter={(v) => (v.length > 8 ? `${v.slice(0, 8)}…` : v)} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="under" stackId="a" fill={isDark ? "#7FB187" : "#8EAE7A"} radius={[0, 4, 4, 0]} />
+                        <Bar dataKey="over" stackId="a" fill={isDark ? "#D47A70" : "#B65A4E"} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    ) : activeChart === "breakdown" ? (
+                      <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                        <Pie
+                          data={breakdownPieData}
+                          dataKey="value"
+                          nameKey="name"
+                          outerRadius={80}
+                          innerRadius={35}
+                          paddingAngle={2}
+                          label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                          labelLine={true}
+                        >
+                          {breakdownPieData.map((entry) => (
+                            <Cell key={entry.name} fill={CATEGORY_COLORS[entry.name] || "#DCCFC1"} fillOpacity={0.92} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend
+                          formatter={(value) => (
+                            <span style={{ color: theme.palette.text.secondary, fontSize: "0.8rem" }}>{value}</span>
+                          )}
+                        />
+                      </PieChart>
+                    ) : (
+                      <LineChart data={dailySpendingData} margin={{ top: 4, right: 16, left: 8, bottom: 16 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                        <XAxis
+                          dataKey="day"
+                          tick={{ fill: theme.palette.text.secondary, fontSize: 11 }}
+                          stroke={theme.palette.text.secondary}
+                          label={{ value: "Day of Month", position: "insideBottom", offset: -8, fill: theme.palette.text.secondary, fontSize: 11 }}
+                        />
+                        <YAxis
+                          tick={{ fill: theme.palette.text.secondary, fontSize: 11 }}
+                          stroke={theme.palette.text.secondary}
+                          tickFormatter={(v) => `$${v}`}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line
+                          type="monotone"
+                          dataKey="total"
+                          name="Spent"
+                          stroke={lineColor}
+                          strokeWidth={2}
+                          dot={{ fill: lineColor, r: 3 }}
+                          activeDot={{ r: 5 }}
+                        />
+                      </LineChart>
+                    )}
                   </ResponsiveContainer>
                 </Box>
               </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 1,
+                  mt: 2,
+                  pt: 2,
+                  flexWrap: "wrap",
+                  borderTop: `1px solid ${headerBorderColor}`,
+                }}
+              >
+                {CHART_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.key}
+                    size="small"
+                    variant={activeChart === opt.key ? "contained" : "outlined"}
+                    onClick={() => setActiveChart(opt.key)}
+                    sx={{ minWidth: 100 }}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </Box>
             </Box>
- 
+
             {/* CATEGORY LIMITS */}
             <Box sx={{ ...cardStyle, flex: 1, minWidth: 420 }}>
               <Typography variant="h6" align="center" gutterBottom>
                 Category Limits
               </Typography>
- 
+
               <Box
                 sx={{
                   display: "grid",
@@ -473,14 +602,10 @@ function BudgetPage() {
                 }}
               >
                 <Typography fontWeight={700} sx={{ color: theme.palette.text.primary }}>Category</Typography>
-                <Typography fontWeight={700} align="right" sx={{ color: theme.palette.text.primary }}>
-                  Allocated
-                </Typography>
-                <Typography fontWeight={700} align="right" sx={{ color: theme.palette.text.primary }}>
-                  Remaining
-                </Typography>
+                <Typography fontWeight={700} align="right" sx={{ color: theme.palette.text.primary }}>Allocated</Typography>
+                <Typography fontWeight={700} align="right" sx={{ color: theme.palette.text.primary }}>Remaining</Typography>
               </Box>
- 
+
               <Box sx={{ mt: 1 }}>
                 {categoryRows.map((row) => (
                   <Box
@@ -514,203 +639,66 @@ function BudgetPage() {
               </Box>
             </Box>
           </Box>
- 
+
           {/* TRANSACTIONS */}
           <Box sx={cardStyle}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 2,
-                gap: 2,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography variant="h6" align="center" sx={{ flex: 1 }}>
-                Transactions
-              </Typography>
- 
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2, gap: 2, flexWrap: "wrap" }}>
+              <Typography variant="h6" align="center" sx={{ flex: 1 }}>Transactions</Typography>
               {!addingNew ? (
-                <Button variant="contained" onClick={startAddNew}>
-                  Add New
-                </Button>
+                <Button variant="contained" onClick={startAddNew}>Add New</Button>
               ) : (
                 <Box sx={{ display: "flex", gap: 1 }}>
-                  <Button variant="contained" onClick={saveNewTransaction}>
-                    Save
-                  </Button>
-                  <Button variant="outlined" onClick={cancelAddNew}>
-                    Cancel
-                  </Button>
+                  <Button variant="contained" onClick={saveNewTransaction}>Save</Button>
+                  <Button variant="outlined" onClick={cancelAddNew}>Cancel</Button>
                 </Box>
               )}
             </Box>
- 
+
             <Box sx={{ overflowX: "auto" }}>
-              <Box
-                sx={{
-                  ...rowGrid,
-                  px: 2,
-                  py: 1.5,
-                  borderBottom: `2px solid ${headerBorderColor}`,
-                  minWidth: 900,
-                }}
-              >
-                <Typography sx={sortHeaderStyle("id")} onClick={() => toggleSort("id")}>
-                  Transaction ID
-                </Typography>
-                <Typography sx={sortHeaderStyle("date")} onClick={() => toggleSort("date")}>
-                  Date
-                </Typography>
-                <Typography sx={sortHeaderStyle("item")} onClick={() => toggleSort("item")}>
-                  Item
-                </Typography>
-                <Typography sx={sortHeaderStyle("category")} onClick={() => toggleSort("category")}>
-                  Category
-                </Typography>
-                <Typography sx={sortHeaderStyle("amount")} onClick={() => toggleSort("amount")}>
-                  Amount
-                </Typography>
+              <Box sx={{ ...rowGrid, px: 2, py: 1.5, borderBottom: `2px solid ${headerBorderColor}`, minWidth: 900 }}>
+                <Typography sx={sortHeaderStyle("id")} onClick={() => toggleSort("id")}>Transaction ID</Typography>
+                <Typography sx={sortHeaderStyle("date")} onClick={() => toggleSort("date")}>Date</Typography>
+                <Typography sx={sortHeaderStyle("item")} onClick={() => toggleSort("item")}>Item</Typography>
+                <Typography sx={sortHeaderStyle("category")} onClick={() => toggleSort("category")}>Category</Typography>
+                <Typography sx={sortHeaderStyle("amount")} onClick={() => toggleSort("amount")}>Amount</Typography>
                 <Typography fontWeight={700} sx={{ color: theme.palette.text.primary }}>Edit</Typography>
               </Box>
- 
+
               {addingNew && (
-                <Box
-                  sx={{
-                    ...rowGrid,
-                    minWidth: 900,
-                    mt: 1.5,
-                    px: 2,
-                    py: 2,
-                    ...newRowStyle,
-                  }}
-                >
+                <Box sx={{ ...rowGrid, minWidth: 900, mt: 1.5, px: 2, py: 2, ...newRowStyle }}>
                   <Typography sx={{ color: theme.palette.text.primary }}>{newDraft.id}</Typography>
- 
-                  <TextField
-                    type="date"
-                    size="small"
-                    value={newDraft.date}
-                    onChange={(e) =>
-                      setNewDraft((prev) => ({ ...prev, date: e.target.value }))
-                    }
-                    InputLabelProps={{ shrink: true }}
-                  />
- 
-                  <TextField
-                    size="small"
-                    placeholder="Item name"
-                    value={newDraft.item}
-                    onChange={(e) =>
-                      setNewDraft((prev) => ({ ...prev, item: e.target.value }))
-                    }
-                  />
- 
-                  <TextField
-                    select
-                    size="small"
-                    value={newDraft.category}
-                    onChange={(e) =>
-                      setNewDraft((prev) => ({ ...prev, category: e.target.value }))
-                    }
-                  >
-                    {categories.map((cat) => (
-                      <MenuItem key={cat} value={cat}>
-                        {cat}
-                      </MenuItem>
-                    ))}
+                  <TextField type="date" size="small" value={newDraft.date} onChange={(e) => setNewDraft((prev) => ({ ...prev, date: e.target.value }))} InputLabelProps={{ shrink: true }} />
+                  <TextField size="small" placeholder="Item name" value={newDraft.item} onChange={(e) => setNewDraft((prev) => ({ ...prev, item: e.target.value }))} />
+                  <TextField select size="small" value={newDraft.category} onChange={(e) => setNewDraft((prev) => ({ ...prev, category: e.target.value }))}>
+                    {categories.map((cat) => <MenuItem key={cat} value={cat}>{cat}</MenuItem>)}
                   </TextField>
- 
-                  <TextField
-                    size="small"
-                    type="number"
-                    placeholder="$0.00"
-                    value={newDraft.amount}
-                    onChange={(e) =>
-                      setNewDraft((prev) => ({ ...prev, amount: e.target.value }))
-                    }
-                  />
- 
+                  <TextField size="small" type="number" placeholder="$0.00" value={newDraft.amount} onChange={(e) => setNewDraft((prev) => ({ ...prev, amount: e.target.value }))} />
                   <Typography sx={{ opacity: 0.6, color: theme.palette.text.secondary }}>New</Typography>
                 </Box>
               )}
- 
+
               <Box sx={{ mt: 1.5 }}>
                 {sortedTransactions.length === 0 && !addingNew && (
                   <Typography sx={{ px: 2, py: 3, opacity: 0.7, color: theme.palette.text.secondary }}>
                     No transactions yet.
                   </Typography>
                 )}
- 
                 {sortedTransactions.map((t) => {
                   const isEditing = editingId === t.id;
- 
                   return (
-                    <Box
-                      key={t.id}
-                      sx={{
-                        ...rowGrid,
-                        minWidth: 900,
-                        px: 2,
-                        py: 2,
-                        mb: 1.25,
-                        ...rowStyle,
-                      }}
-                    >
+                    <Box key={t.id} sx={{ ...rowGrid, minWidth: 900, px: 2, py: 2, mb: 1.25, ...rowStyle }}>
                       <Typography sx={{ color: theme.palette.text.primary }}>{t.id}</Typography>
- 
                       {isEditing ? (
                         <>
-                          <TextField
-                            type="date"
-                            size="small"
-                            value={editDraft.date}
-                            onChange={(e) =>
-                              setEditDraft((prev) => ({ ...prev, date: e.target.value }))
-                            }
-                            InputLabelProps={{ shrink: true }}
-                          />
- 
-                          <TextField
-                            size="small"
-                            value={editDraft.item}
-                            onChange={(e) =>
-                              setEditDraft((prev) => ({ ...prev, item: e.target.value }))
-                            }
-                          />
- 
-                          <TextField
-                            select
-                            size="small"
-                            value={editDraft.category}
-                            onChange={(e) =>
-                              setEditDraft((prev) => ({ ...prev, category: e.target.value }))
-                            }
-                          >
-                            {categories.map((cat) => (
-                              <MenuItem key={cat} value={cat}>
-                                {cat}
-                              </MenuItem>
-                            ))}
+                          <TextField type="date" size="small" value={editDraft.date} onChange={(e) => setEditDraft((prev) => ({ ...prev, date: e.target.value }))} InputLabelProps={{ shrink: true }} />
+                          <TextField size="small" value={editDraft.item} onChange={(e) => setEditDraft((prev) => ({ ...prev, item: e.target.value }))} />
+                          <TextField select size="small" value={editDraft.category} onChange={(e) => setEditDraft((prev) => ({ ...prev, category: e.target.value }))}>
+                            {categories.map((cat) => <MenuItem key={cat} value={cat}>{cat}</MenuItem>)}
                           </TextField>
- 
-                          <TextField
-                            size="small"
-                            type="number"
-                            value={editDraft.amount}
-                            onChange={(e) =>
-                              setEditDraft((prev) => ({ ...prev, amount: e.target.value }))
-                            }
-                          />
- 
+                          <TextField size="small" type="number" value={editDraft.amount} onChange={(e) => setEditDraft((prev) => ({ ...prev, amount: e.target.value }))} />
                           <Box sx={{ display: "flex", gap: 1 }}>
-                            <Button size="small" variant="contained" onClick={saveEdit}>
-                              Save
-                            </Button>
-                            <Button size="small" variant="outlined" onClick={cancelEdit}>
-                              Cancel
-                            </Button>
+                            <Button size="small" variant="contained" onClick={saveEdit}>Save</Button>
+                            <Button size="small" variant="outlined" onClick={cancelEdit}>Cancel</Button>
                           </Box>
                         </>
                       ) : (
@@ -718,17 +706,10 @@ function BudgetPage() {
                           <Typography sx={{ color: theme.palette.text.primary }}>{t.date}</Typography>
                           <Typography sx={{ color: theme.palette.text.primary }}>{t.item}</Typography>
                           <Typography sx={{ color: theme.palette.text.primary }}>{t.category}</Typography>
-                          <Typography
-                            sx={{
-                              color: amountColor(t.category),
-                              fontWeight: 700,
-                            }}
-                          >
+                          <Typography sx={{ color: amountColor(t.category), fontWeight: 700 }}>
                             ${Number(t.amount).toFixed(2)}
                           </Typography>
-                          <Button size="small" onClick={() => startEdit(t)}>
-                            Edit
-                          </Button>
+                          <Button size="small" onClick={() => startEdit(t)}>Edit</Button>
                         </>
                       )}
                     </Box>
@@ -742,5 +723,5 @@ function BudgetPage() {
     </Box>
   );
 }
- 
+
 export default BudgetPage;

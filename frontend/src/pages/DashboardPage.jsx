@@ -61,7 +61,6 @@ function DashboardPage() {
   const barData = categories.map((cat) => {
     const spent = categorySpent[cat] || 0;
     const limit = budgetLimits?.[cat] || 0;
- 
     return {
       category: cat,
       under: Math.min(spent, limit),
@@ -71,7 +70,7 @@ function DashboardPage() {
  
   const cardStyle = {
     borderRadius: 3,
-    p: 3,
+    p: 2,
     background: isDark
       ? `linear-gradient(145deg, ${theme.palette.background.paper}, #221C17)`
       : "linear-gradient(145deg, #ffffff, #f8f3ee)",
@@ -81,6 +80,9 @@ function DashboardPage() {
     border: isDark
       ? "1px solid rgba(168, 134, 94, 0.14)"
       : "1px solid rgba(111, 90, 69, 0.12)",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
   };
  
   const gridStroke = isDark
@@ -91,74 +93,97 @@ function DashboardPage() {
   const barOverFill = isDark ? "#D47A70" : "#B65A4E";
  
   return (
-    <Box sx={{ p: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
+    <Box
+      sx={{
+        p: 2,
+        display: "flex",
+        gap: 2,
+        height: "100%",
+        overflow: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
       {/* LEFT SIDE */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, minWidth: 420 }}>
-        <Box sx={cardStyle}>
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          minWidth: 0,
+          overflow: "hidden",
+        }}
+      >
+        {/* Spending Breakdown */}
+        <Box sx={{ ...cardStyle, flex: 1 }}>
           <Typography
             align="center"
             variant="h6"
             gutterBottom
-            sx={{ color: theme.palette.text.primary }}
+            sx={{ color: theme.palette.text.primary, flexShrink: 0 }}
           >
             Spending Breakdown
           </Typography>
-          <BudgetPieChart budget={{ transactions }} />
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <BudgetPieChart budget={{ transactions }} />
+          </Box>
         </Box>
  
-        <Box sx={cardStyle}>
+        {/* Category Limits */}
+        <Box sx={{ ...cardStyle, flex: 1 }}>
           <Typography
             align="center"
             variant="h6"
             gutterBottom
-            sx={{ color: theme.palette.text.primary }}
+            sx={{ color: theme.palette.text.primary, flexShrink: 0 }}
           >
             Category Limits
           </Typography>
- 
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart
-              layout="vertical"
-              data={barData}
-              margin={{ top: 8, right: 18, left: 12, bottom: 8 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-              <XAxis
-                type="number"
-                stroke={theme.palette.text.secondary}
-                tick={{ fill: theme.palette.text.secondary }}
-              />
-              <YAxis
-                type="category"
-                dataKey="category"
-                width={120}
-                stroke={theme.palette.text.secondary}
-                tick={{ fill: theme.palette.text.primary }}
-                tickFormatter={(v) => (v.length > 9 ? `${v.slice(0, 9)}…` : v)}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${theme.palette.divider}`,
-                  color: theme.palette.text.primary,
-                }}
-                labelStyle={{ color: theme.palette.text.primary }}
-                itemStyle={{ color: theme.palette.text.secondary }}
-              />
-              <Bar dataKey="under" stackId="a" fill={barUnderFill} radius={[0, 4, 4, 0]} />
-              <Bar dataKey="over" stackId="a" fill={barOverFill} radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                layout="vertical"
+                data={barData}
+                margin={{ top: 4, right: 16, left: 16, bottom: 4 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis
+                  type="number"
+                  stroke={theme.palette.text.secondary}
+                  tick={{ fill: theme.palette.text.secondary, fontSize: 11 }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="category"
+                  width={120}
+                  stroke={theme.palette.text.secondary}
+                  tick={{ fill: theme.palette.text.primary, fontSize: 11 }}
+                  tickFormatter={(v) => (v.length > 9 ? `${v.slice(0, 9)}…` : v)}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: theme.palette.background.paper,
+                    border: `1px solid ${theme.palette.divider}`,
+                    color: theme.palette.text.primary,
+                  }}
+                  labelStyle={{ color: theme.palette.text.primary }}
+                  itemStyle={{ color: theme.palette.text.secondary }}
+                />
+                <Bar dataKey="under" stackId="a" fill={barUnderFill} radius={[0, 4, 4, 0]} />
+                <Bar dataKey="over" stackId="a" fill={barOverFill} radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
         </Box>
       </Box>
  
       {/* RIGHT SIDE */}
-      <Box sx={{ flex: 1, minWidth: 420, ...cardStyle }}>
+      <Box sx={{ ...cardStyle, flex: 1, minWidth: 0 }}>
         <Typography
           align="center"
           variant="h6"
           gutterBottom
-          sx={{ color: theme.palette.text.primary, mb: 6 }}
+          sx={{ color: theme.palette.text.primary, flexShrink: 0 }}
         >
           Portfolio Overview
         </Typography>
