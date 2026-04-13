@@ -8,6 +8,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  useMediaQuery
 } from '@mui/material';
 
 import { usePortfolioContext } from '../context/PortfolioContext.jsx';
@@ -92,7 +93,7 @@ function PortfolioPage() {
   return (
     <Box
       sx={{
-        p: 4,
+        p: { xs: 2, md: 4 },
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -107,13 +108,16 @@ function PortfolioPage() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: 2
         }}
       >
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" sx={{ fontSize: { xs: '1.5rem', md: '2.125rem'}}}>
           Portfolio
         </Typography>
 
-        <Button onClick={() => setOpen(true)}>
+        <Button onClick={() => setOpen(true)} variant="contained"
+        size={useMediaQuery('(max-width:600px)') ? "small" : "medium"} // Smaller button on mobile
+        sx={{ whiteSpace: 'nowrap', minWidth: 'fit-content' }}>
           Create New Portfolio
         </Button>
       </Box>
@@ -138,7 +142,7 @@ function PortfolioPage() {
       )}
 
       {/* Portfolio Display */}
-      <Grid container spacing={2} justifyContent="center" sx={{ width: '80%' }}>
+      <Grid container spacing={2} justifyContent="center" sx={{ width: '100%' }}>
         {/* Selected portfolio */}
         {portfolio && (
           <Grid sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -155,7 +159,7 @@ function PortfolioPage() {
               key={p.id}
               sx={{ display: 'flex', justifyContent: 'center', width: '100%', height: '100%' }}
             >
-              <Card sx={{ width: '40%', height: '100%' }}>
+              <Card sx={{ width: '100%', height: '100%' }}>
                 <CardActionArea
                   onClick={() => setPortfolio(p)}
                   sx={{

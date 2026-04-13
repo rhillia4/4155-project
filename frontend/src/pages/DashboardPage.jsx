@@ -240,15 +240,18 @@ function DashboardPage() {
 
             {/* The exactly-the-same charts */}
             {bestPortfolio && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: "space-between" }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <Typography variant="h6" component="h2" sx={{ mt: 2 }}>
                   {bestPortfolio.name}
                 </Typography>
-                <Grid
-                  key={bestPortfolio.id}
-                  sx={{ gap: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}
-                >
-                  <Card sx={{ width: '100%', height: '45%' }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  flex: 1, 
+                  gap: 2, 
+                  minHeight: 0 // Crucial for responsive charts inside flex
+                }}>
+                  <Card sx={{ width: '100%', flex: 1, minHeight: 0 }}>
                     <CardActionArea
                       onClick={() => {setPortfolio(bestPortfolio); navigate('/portfolio');}}
                       sx={{
@@ -259,15 +262,16 @@ function DashboardPage() {
                         height: '100%',
                       }}
                     >
-                      <CardContent sx={{ width: '100%', height: '100%' }}>
+                      <CardContent sx={{ width: '100%', height: '100%', p: 0 }}>
                         <StockIncomeGraph
                           snapshots={bestPortfolio.snapshots}
                           holdings={bestPortfolio.holdings}
+                          isDashboard={true}
                         />
                       </CardContent>
                     </CardActionArea>
                   </Card>
-                  <Card sx={{ width: '100%', height: '45%' }}>
+                  <Card sx={{ width: '100%', flex: 1, minHeight: 0 }}>
                     <CardActionArea
                       onClick={() => {setPortfolio(bestPortfolio); navigate('/portfolio');}}
                       sx={{
@@ -278,14 +282,15 @@ function DashboardPage() {
                         height: '100%',
                       }}
                     >
-                      <CardContent sx={{ width: '100%', height: '100%' }}>
+                      <CardContent sx={{ width: '100%', height: '100%', p: 0 }}>
                         <PortfolioComposition
                           holdings={bestPortfolio.holdings}
+                          isDashboard={true}
                         />
                       </CardContent>
                     </CardActionArea>
                   </Card>
-                </Grid>
+                </Box>
               </Box>
             ) || (
               <Typography align="center" variant="body1" sx={{ color: theme.palette.text.secondary }}>

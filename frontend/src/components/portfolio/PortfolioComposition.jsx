@@ -3,7 +3,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import { Box, Typography, Paper } from '@mui/material';
 import { getStockData } from '../../services/api.js';
 
-function PortfolioComposition({ holdings }) {
+function PortfolioComposition({ holdings, isDashboard = false}) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -13,7 +13,6 @@ function PortfolioComposition({ holdings }) {
     }
     setRows(holdings);
   }, [holdings]);
-
 
   const chartData = useMemo(() => {
     if (!rows.length) return [];
@@ -26,14 +25,16 @@ function PortfolioComposition({ holdings }) {
 
   return (
     <Paper sx={{ p: 2,  height: '100%', display: 'flex', flexDirection: 'column'}}>
-      <Typography variant="h6" color="white">Portfolio Composition</Typography>
+      <Typography variant={isDashboard ? "subtitle2" : "h6"} color="white">Portfolio Composition</Typography>
       <Box sx={{ height: 250, mt: 2 }}>
           {chartData.length > 0 ? (
         <PieChart series={[{  
             data: chartData,
-            innerRadius: 30,
-            outerRadius: 120,
-          }]} 
+            outerRadius: isDashboard ? "75%" : "85%",          }]} 
+          // Hide legend on dashboard to prevent cutoff
+          slotProps={{ 
+            legend: { hidden: isDashboard ? true : { xs: true, md: false } } 
+          }}
       />
           ) : (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>

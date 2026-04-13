@@ -74,21 +74,21 @@ function PortfolioDetailed() {
   }, [portfolio?.id]);
 
   return (
-    <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}> {/* Full width & height of parent */}
+    <Box sx={{ width: '100%', minHeight: '100%', p: { xs: 1, md: 3 }, }}> {/* Full width & height of parent */}
       
       <PortfolioHeader holdings={holdings} />
 
-      <Grid container sx={{ gap: 2, width: '100%', display: 'flex', justifyContent: 'space-around', height: '350px'}}>
-        <Grid sx={{width: "40%"}}> 
+      <Grid container spacing={{ xs: 1, md: 2 }} sx={{ width: '100%', mt: 2, justifyContent: 'center'}}>
+        <Grid item xs={12} md={6} sx={{ height: { xs: '300px', md: '400px'} }}> 
           <StockIncomeGraph snapshots={snapshots} holdings={holdings} />
         </Grid>
         
-        <Grid sx={{width: "40%"}}> 
+        <Grid item xs={12} md={6} sx={{ height: { xs: '300px', md: '400px' } }}> 
           <PortfolioComposition holdings={holdings} />
         </Grid>
       </Grid>
      
-      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2, justifyContent: 'space-between' }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', mt: 2, justifyContent: 'space-between' }}>
         <Typography variant="h5" component="div" sx={{ mt: 2, textAlign: 'center' }}>
             {portfolio.name}
         </Typography>
@@ -134,22 +134,16 @@ function PortfolioDetailed() {
         />
 
         {/* Table */}
-          <Typography variant="h5" component="h2" sx={{ mt: 4, alignSelf: 'flex-start' }}>
-            {!showHoldings ? "Transactions" : "Holdings"} for {portfolio.name}
-          </Typography>
-
-          <Box sx={{ width: '100%', height: '100%' }}>
-              <div>
-              {/* Toggle Button */}
-              <Button onClick={toggleView}>
-                Switch to {showHoldings ? "Transactions" : "Holdings"}
-              </Button>
-
-              {/* Only ONE renders at a time */}
-              {showHoldings ? <HoldingTable holdings={holdings} /> : <TransactionTable transactions={transactions} />}
-            </div>
-          </Box>
-    </Box>
+         <Box sx={{ mt: 4, width: '100%', overflowX: 'auto' }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              {!showHoldings ? "Transactions" : "Holdings"} for {portfolio.name}
+            </Typography>
+            <Button variant="text" onClick={toggleView} sx={{ mb: 1 }}>
+              Switch to {showHoldings ? "Transactions" : "Holdings"}
+            </Button>
+            {showHoldings ? <HoldingTable holdings={holdings} /> : <TransactionTable transactions={transactions} />}
+        </Box>
+      </Box>
   );
 }
 

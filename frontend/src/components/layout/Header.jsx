@@ -59,10 +59,11 @@ function Header() {
   return (
     <Box
       sx={{
-        height: 120,
-        px: 3,
+        height: { xs: 80, md: 120 },
+        px: { xs: 0.2, md: 3 },
+        py: { xs: 1, md: 0 },
         display: "flex",
-        alignItems: "flex-end",
+        alignItems: "center",
         justifyContent: "space-between",
         background: headerGradient,
         borderBottom: `1px solid ${theme.palette.divider}`,
@@ -77,7 +78,7 @@ function Header() {
         sx={{
           display: "flex",
           alignItems: "flex-end",
-          gap: 1.2,
+          gap: { xs: 0.2, md: 1.2 },
           textDecoration: "none",
           color: "inherit",
         }}
@@ -87,7 +88,7 @@ function Header() {
           src={vestlyLogo}
           alt="Vestly Logo"
           sx={{
-            height: 120,
+            height: { xs: 90, md: 100 },
             width: "auto",
             objectFit: "contain",
             display: "block",
@@ -114,7 +115,7 @@ function Header() {
           <Typography
             sx={{
               fontFamily: '"Great Vibes", "Times New Roman", cursive',
-              fontSize: "2rem",
+              fontSize: { xs: "1.5rem", md: "2rem" },
               color: theme.palette.primary.main,
               transition: "color 0.2s ease",
             }}
@@ -124,7 +125,7 @@ function Header() {
  
           <Typography
             sx={{
-              fontSize: "0.85rem",
+              fontSize: { xs: "0.45rem", md: "0.85rem" },
               letterSpacing: "0.08em",
               mt: "-2px",
               color: theme.palette.text.secondary,
@@ -139,8 +140,8 @@ function Header() {
       {/* RIGHT SIDE: Account area */}
       <Box
         sx={{
-          pr: 2,
-          pb: "20px",
+          pr: { xs: 0.5, md: 2 },
+          pb: { xs: "12px", md: "20px" },
           display: "flex",
           alignItems: "center",
         }}
@@ -150,7 +151,7 @@ function Header() {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1,
+            gap: { xs: 0.7, md: 1 },
             cursor: "pointer",
             px: 1,
             py: 0.5,
@@ -164,8 +165,8 @@ function Header() {
         >
           <Avatar
             sx={{
-              width: 38,
-              height: 38,
+              width: { xs: 32, md: 38 },
+              height: { xs: 32, md: 38 },
               backgroundColor: avatarBg,
               color: theme.palette.primary.main,
               fontWeight: 700,
@@ -187,7 +188,7 @@ function Header() {
           >
             <Typography
               sx={{
-                fontSize: "1rem",
+                fontSize: { xs: "0.75rem", md: "1rem" },
                 fontWeight: 600,
                 color: theme.palette.text.primary,
                 transition: "color 0.2s ease",
@@ -198,7 +199,7 @@ function Header() {
  
             <Typography
               sx={{
-                fontSize: "0.78rem",
+                fontSize: { xs: "0.63rem", md: "0.78rem" },
                 letterSpacing: "0.05em",
                 color: theme.palette.text.secondary,
                 transition: "color 0.2s ease",

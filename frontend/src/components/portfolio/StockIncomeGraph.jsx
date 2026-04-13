@@ -3,7 +3,7 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import { Box, Typography, Paper } from '@mui/material';
 import dayjs from 'dayjs';
 
-function StockIncomeGraph({ snapshots, holdings }) {
+function StockIncomeGraph({ snapshots, holdings, isDashboard = false}) {
     const [xaxisData, setXAxisData] = useState([]);
     const [seriesData, setSeriesData] = useState([]);
 
@@ -35,16 +35,17 @@ function StockIncomeGraph({ snapshots, holdings }) {
 
     return (
     <Paper sx={{ p: 2, height: "100%", display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+      <Typography variant={isDashboard ? "subtitle2" : "h6"} sx={{ mb: isDashboard ? 0.5 : 2, fontWeight: 500 }}>
         Portfolio History
       </Typography>
 
-      <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+      <Box sx={{ width: '100%', height: isDashboard ? 150 : 200, position: 'relative' }}>
         {seriesData.length > 0 ? (
           <LineChart
             hideLegend
             xAxis={[{ data: xaxisData, scaleType: 'point' }]}
             series={[{ data: seriesData, area: true }]}
+            height={200}
             sx={{ width: '100%', height: '100%' }}
           />
         ) : (
