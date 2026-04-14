@@ -8,29 +8,39 @@ function StockIncomeGraph({ snapshots, holdings, isDashboard = false}) {
     const [seriesData, setSeriesData] = useState([]);
 
     useEffect(() => {
-        if (snapshots && snapshots.length > 0) {
-            const sortedSnapshots = [...snapshots].sort(
-                (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-            );
-            
-            const values = sortedSnapshots.map(snap => snap.total_value);
-            if (new Date(snapshots[0].timestamp).toLocaleDateString() === new Date().toLocaleDateString()) {
-                values[0] = holdings.reduce((sum, h) => sum + (h.value), 0);
-            }else {
-                values.unshift(holdings.reduce((sum, h) => sum + (h.value), 0));
-            }
+      if (snapshots && snapshots.length > 0) {
+        const sortedSnapshots = [...snapshots].sort(
+          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+        );
 
-            setXAxisData(
-              sortedSnapshots.map(snap =>
-                new Date(snap.timestamp).toLocaleDateString()
-              )
-            );
-            setSeriesData(values);
-            console.log("Processed snapshots for graph:", { xaxisData, seriesData });
-          }else if (holdings && holdings.length > 0) {
-            setXAxisData([new Date().toLocaleDateString()]);
-            setSeriesData([holdings.reduce((sum, h) => sum + (h.value), 0)]);
-          }
+        const values = sortedSnapshots.map(s => s.total_value);
+        const dates = sortedSnapshots.map(s =>
+          new Date(s.timestamp).toLocaleDateString()
+        );
+
+        const currentValue = (holdings || []).reduce((sum, h) => sum + h.value, 0);
+
+        if (
+          new Date(sortedSnapshots[0].timestamp).toLocaleDateString() ===
+          new Date().toLocaleDateString()
+        ) {
+          values[0] = currentValue;
+        } else {
+          values.unshift(currentValue);
+          dates.unshift(new Date().toLocaleDateString());
+        }
+
+        setXAxisData(dates);
+        setSeriesData(values);
+
+        console.log("Processed snapshots:", { dates, values });
+
+      } else if (holdings && holdings.length > 0) {
+        const currentValue = holdings.reduce((sum, h) => sum + h.value, 0);
+
+        setXAxisData([new Date().toLocaleDateString()]);
+        setSeriesData([currentValue]);
+      }
     }, [snapshots, holdings]);
 
     return (
