@@ -63,9 +63,10 @@ function Sidebar() {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "clip",
-    px: open ? 1.5 : 0,
+    // REDUCED PADDING AND FONT SIZE SLIGHTLY
+    px: open ? 0.75 : 0, 
     borderRadius: 2,
-    fontSize: open ? "0.875rem" : "1rem",
+    fontSize: open ? "0.8rem" : "1rem", 
     minWidth: 0,
     transition: "background-color 0.2s ease, color 0.2s ease",
     "&:hover": {
@@ -192,7 +193,8 @@ function Sidebar() {
               borderBottom: !open ? logoDivider : "none",
               pr: open ? 1 : 0,
               pb: !open ? 1 : 0,
-              width: open ? "50%" : "100%",
+              // REDUCED LOGO WIDTH TO 40%
+              width: open ? "40%" : "100%", 
             }}
           >
             <img
@@ -209,7 +211,7 @@ function Sidebar() {
               }}
             />
           </Box>
- 
+
           {/* SETTINGS + LOGOUT */}
           <Box
             sx={{
@@ -217,7 +219,8 @@ function Sidebar() {
               flexDirection: "column",
               gap: 0.5,
               justifyContent: "center",
-              width: open ? "50%" : "100%",
+              // INCREASED BUTTON AREA WIDTH TO 60%
+              width: open ? "60%" : "100%", 
               minWidth: 0,
             }}
           >
@@ -229,7 +232,7 @@ function Sidebar() {
             >
               {open ? "Settings" : <SettingsIcon fontSize="small" />}
             </Button>
- 
+
             <Button
               variant="text"
               onClick={logout}

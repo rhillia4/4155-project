@@ -32,7 +32,6 @@ const RADIAN = Math.PI / 180;
 
 function renderLabel(props) {
   const { cx, cy, midAngle, outerRadius, percent, value } = props;
-
   if (!value || value <= 0) return null;
 
   const radius = outerRadius + 20;
@@ -62,7 +61,7 @@ function BudgetPieChart({ budget }) {
   const data = orderedCategories
     .map((cat) => ({
       name: cat,
-      value: budget.transactions
+      value: (budget.transactions || [])
         .filter((t) => String(t.category).toUpperCase() === cat.toUpperCase())
         .reduce((sum, t) => sum + Number(t.amount || 0), 0),
     }))
@@ -81,22 +80,67 @@ function BudgetPieChart({ budget }) {
           py: 1,
         }}
       >
-        <Typography sx={{ fontSize: "0.85rem", fontWeight: 600, color: theme.palette.text.primary }}>
+        <Typography
+          sx={{
+            fontSize: "0.85rem",
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+          }}
+        >
           {entry.name}
         </Typography>
-        <Typography sx={{ fontSize: "0.82rem", color: theme.palette.text.secondary }}>
+        <Typography
+          sx={{ fontSize: "0.82rem", color: theme.palette.text.secondary }}
+        >
           ${Number(entry.value).toFixed(2)}
         </Typography>
       </Box>
     );
   };
 
+  if (data.length === 0) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: 260,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography sx={{ color: theme.palette.text.secondary, opacity: 0.7 }}>
+          No spending data yet.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "row", gap: 1 }}>
- 
+    <Box
+      sx={{
+        width: "100%",
+        // KEY FIX: use a fixed minHeight instead of height: "100%"
+        // This gives Recharts a real pixel size to work with at any screen size
+        minHeight: 260,
+        display: "flex",
+        flexDirection: "row",
+        gap: 1,
+      }}
+    >
       {/* Chart */}
-      <Box sx={{ flex: 1, minWidth: 0, minHeight: 0 }}>
-        <ResponsiveContainer width="100%" height="100%">
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          // KEY FIX: was minHeight: 0 (which allowed full collapse) — now 260px floor
+          minHeight: 260,
+        }}
+      >
+        {/* KEY FIX: give ResponsiveContainer a real pixel height, not "100%"
+            "100%" only works when the parent has an explicit pixel height, which
+            flex containers often don't provide. 260px always works. */}
+        <ResponsiveContainer width="100%" height={260}>
           <PieChart>
             <Pie
               data={data}
@@ -126,7 +170,7 @@ function BudgetPieChart({ budget }) {
           </PieChart>
         </ResponsiveContainer>
       </Box>
- 
+
       {/* Legend */}
       <Box
         sx={{
@@ -165,7 +209,6 @@ function BudgetPieChart({ budget }) {
           </Box>
         ))}
       </Box>
- 
     </Box>
   );
 }

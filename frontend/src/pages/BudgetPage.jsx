@@ -199,14 +199,17 @@ function BudgetPage() {
 
   const rowGrid = {
     display: "grid",
-    gridTemplateColumns: "120px 150px 1.7fr 1.2fr 130px 110px",
-    columnGap: 2,
+    gridTemplateColumns: {
+      xs: "1fr",
+      md: "120px 150px 1.7fr 1.2fr 130px 110px",
+    },
+    gap: { xs: 1, md: 2 },
     alignItems: "center",
     width: "100%",
   };
 
   const gridStroke = isDark ? "rgba(168, 134, 94, 0.12)" : "rgba(111, 90, 69, 0.12)";
-  const lineColor = isDark ? "#A8865E" : "#6F5A45";
+  const lineColor  = isDark ? "#A8865E" : "#6F5A45";
 
   // --- Budget creation ---
   const handleCreateBudget = async () => {
@@ -236,7 +239,7 @@ function BudgetPage() {
 
   const overviewPieData = [
     { name: "Remaining", value: Math.max(remainingBalance, 0) },
-    { name: "Spent", value: totalAmountSpent },
+    { name: "Spent",     value: totalAmountSpent },
   ];
 
   const breakdownPieData = useMemo(() =>
@@ -256,10 +259,8 @@ function BudgetPage() {
     const year = now.getFullYear();
     const month = now.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     const dailyMap = {};
     for (let d = 1; d <= daysInMonth; d++) dailyMap[d] = 0;
-
     transactions
       .filter((t) => String(t.category).toUpperCase() !== "INCOME" && t.date)
       .forEach((t) => {
@@ -268,7 +269,6 @@ function BudgetPage() {
           dailyMap[tDay] = (dailyMap[tDay] || 0) + Number(t.amount || 0);
         }
       });
-
     return Object.entries(dailyMap).map(([day, total]) => ({ day: `${day}`, total }));
   }, [transactions]);
 
@@ -314,11 +314,11 @@ function BudgetPage() {
   const sortedTransactions = useMemo(() => {
     const arr = [...transactions];
     arr.sort((a, b) => {
-      if (sortField === "id") return sortDirection === "asc" ? a.id - b.id : b.id - a.id;
-      if (sortField === "date") return sortDirection === "asc" ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
-      if (sortField === "item") return sortDirection === "asc" ? a.item.localeCompare(b.item) : b.item.localeCompare(a.item);
+      if (sortField === "id")       return sortDirection === "asc" ? a.id - b.id : b.id - a.id;
+      if (sortField === "date")     return sortDirection === "asc" ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
+      if (sortField === "item")     return sortDirection === "asc" ? a.item.localeCompare(b.item) : b.item.localeCompare(a.item);
       if (sortField === "category") return sortDirection === "asc" ? a.category.localeCompare(b.category) : b.category.localeCompare(a.category);
-      if (sortField === "amount") return sortDirection === "asc" ? Number(a.amount) - Number(b.amount) : Number(b.amount) - Number(a.amount);
+      if (sortField === "amount")   return sortDirection === "asc" ? Number(a.amount) - Number(b.amount) : Number(b.amount) - Number(a.amount);
       return 0;
     });
     return arr;
@@ -404,11 +404,25 @@ function BudgetPage() {
   const showStats = activeChart === "donut";
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4" align="center" gutterBottom sx={{ color: theme.palette.text.primary }}>
-        Budget
-      </Typography>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
 
+      {/* ── Page header with Edit Income button ── */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography variant="h4" sx={{ color: theme.palette.text.primary }}>
+          Budget
+        </Typography>
+        {budgetLimits && (
+          <Button
+            variant="outlined"
+            onClick={() => setBudgetLimits(null)}
+            sx={{ borderColor: theme.palette.text.secondary, color: theme.palette.text.primary }}
+          >
+            Edit Income
+          </Button>
+        )}
+      </Box>
+
+      {/* ── Create budget form ── */}
       {!budgetLimits && (
         <Box sx={{ ...cardStyle, maxWidth: 680, mx: "auto", mt: 4 }}>
           <Typography variant="h6" align="center" gutterBottom>
@@ -433,26 +447,51 @@ function BudgetPage() {
 
       {budgetLimits && (
         <>
+          {/* ── Top row: Overview card + Category Limits card ── */}
           <Box sx={{ display: "flex", gap: 4, mb: 4, flexWrap: "wrap" }}>
 
             {/* OVERVIEW CARD */}
-            <Box sx={{ ...cardStyle, flex: 1, minWidth: 420, display: "flex", flexDirection: "column" }}>
+            <Box
+              sx={{
+                ...cardStyle,
+                flex: 1,
+                minWidth: { xs: "100%", md: "420px" },
+                // Fixed min-height so the card never collapses
+                minHeight: 460,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Typography variant="h6" align="center" gutterBottom>
                 {chartTitles[activeChart]}
               </Typography>
 
+              {/*
+                KEY FIX: on small screens (< md) the stats stack ABOVE the chart.
+                On desktop they sit side-by-side.
+                Using md (900px) instead of sm (600px) gives the chart enough room.
+              */}
               <Box
                 sx={{
-                  display: "grid",
-                  gridTemplateColumns: showStats ? "1fr 1.15fr" : "1fr",
+                  display: "flex",
+                  flexDirection: { xs: "column", md: "row" },
                   gap: 2,
-                  alignItems: "center",
+                  alignItems: { xs: "stretch", md: "center" },
                   flex: 1,
                 }}
               >
+                {/* Stats column — only shown on donut view */}
                 {showStats && (
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                    <Box sx={miniStatStyle}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: { xs: "row", md: "column" },
+                      flexWrap: "wrap",
+                      gap: 1,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Box sx={{ ...miniStatStyle, flex: { xs: 1, md: "unset" } }}>
                       <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
                         Monthly Income
                       </Typography>
@@ -460,7 +499,7 @@ function BudgetPage() {
                         ${Number(totalIncome).toFixed(2)}
                       </Typography>
                     </Box>
-                    <Box sx={miniStatStyle}>
+                    <Box sx={{ ...miniStatStyle, flex: { xs: 1, md: "unset" } }}>
                       <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
                         Total Amount Spent
                       </Typography>
@@ -468,7 +507,7 @@ function BudgetPage() {
                         ${Number(totalAmountSpent).toFixed(2)}
                       </Typography>
                     </Box>
-                    <Box sx={miniStatStyle}>
+                    <Box sx={{ ...miniStatStyle, flex: { xs: 1, md: "unset" } }}>
                       <Typography variant="subtitle2" sx={{ opacity: 0.75, color: theme.palette.text.secondary }}>
                         Amount Remaining
                       </Typography>
@@ -482,8 +521,12 @@ function BudgetPage() {
                   </Box>
                 )}
 
-                <Box sx={{ height: 280, pt: showStats ? 3 : 1 }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                {/*
+                  Chart area — hardcoded 280px height so Recharts always
+                  has a real pixel size regardless of flex parent behaviour
+                */}
+                <Box sx={{ flex: 1, height: 280, minHeight: 280 }}>
+                  <ResponsiveContainer width="100%" height={280}>
                     {activeChart === "donut" ? (
                       <PieChart>
                         <Pie data={overviewPieData} dataKey="value" nameKey="name" outerRadius={100} innerRadius={45}>
@@ -499,7 +542,7 @@ function BudgetPage() {
                         <YAxis type="category" dataKey="category" width={100} tick={{ fill: theme.palette.text.primary, fontSize: 11 }} stroke={theme.palette.text.secondary} tickFormatter={(v) => (v.length > 8 ? `${v.slice(0, 8)}…` : v)} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="under" stackId="a" fill={isDark ? "#7FB187" : "#8EAE7A"} radius={[0, 4, 4, 0]} />
-                        <Bar dataKey="over" stackId="a" fill={isDark ? "#D47A70" : "#B65A4E"} radius={[0, 4, 4, 0]} />
+                        <Bar dataKey="over"  stackId="a" fill={isDark ? "#D47A70" : "#B65A4E"} radius={[0, 4, 4, 0]} />
                       </BarChart>
                     ) : activeChart === "breakdown" ? (
                       <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
@@ -535,9 +578,16 @@ function BudgetPage() {
                 </Box>
               </Box>
 
+              {/* Chart switcher buttons */}
               <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 2, pt: 2, flexWrap: "wrap", borderTop: `1px solid ${headerBorderColor}` }}>
                 {CHART_OPTIONS.map((opt) => (
-                  <Button key={opt.key} size="small" variant={activeChart === opt.key ? "contained" : "outlined"} onClick={() => setActiveChart(opt.key)} sx={{ minWidth: 100 }}>
+                  <Button
+                    key={opt.key}
+                    size="small"
+                    variant={activeChart === opt.key ? "contained" : "outlined"}
+                    onClick={() => setActiveChart(opt.key)}
+                    sx={{ minWidth: 100 }}
+                  >
                     {opt.label}
                   </Button>
                 ))}
@@ -545,7 +595,7 @@ function BudgetPage() {
             </Box>
 
             {/* CATEGORY LIMITS */}
-            <Box sx={{ ...cardStyle, flex: 1, minWidth: 420 }}>
+            <Box sx={{ ...cardStyle, flex: 1, minWidth: { xs: "100%", md: "420px" } }}>
               <Typography variant="h6" align="center" gutterBottom>Category Limits</Typography>
 
               <Box sx={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", columnGap: 2, px: 2, pb: 1.25, borderBottom: `2px solid ${headerBorderColor}` }}>
@@ -556,10 +606,30 @@ function BudgetPage() {
 
               <Box sx={{ mt: 1 }}>
                 {categoryRows.map((row) => (
-                  <Box key={row.category} sx={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", columnGap: 2, alignItems: "center", px: 2, py: 1.4, mb: 1, ...categoryRowStyle }}>
+                  <Box
+                    key={row.category}
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "1.2fr 1fr 1fr",
+                      columnGap: 2,
+                      alignItems: "center",
+                      px: 2,
+                      py: 1.4,
+                      mb: 1,
+                      ...categoryRowStyle,
+                    }}
+                  >
                     <Typography sx={{ color: theme.palette.text.primary }}>{row.category}</Typography>
-                    <Typography align="right" sx={{ color: theme.palette.text.primary }}>${Number(row.allocated).toFixed(2)}</Typography>
-                    <Typography align="right" sx={{ color: row.remaining >= 0 ? amountColor("INCOME") : amountColor("OTHER"), fontWeight: 700 }}>
+                    <Typography align="right" sx={{ color: theme.palette.text.primary }}>
+                      ${Number(row.allocated).toFixed(2)}
+                    </Typography>
+                    <Typography
+                      align="right"
+                      sx={{
+                        color: row.remaining >= 0 ? amountColor("INCOME") : amountColor("OTHER"),
+                        fontWeight: 700,
+                      }}
+                    >
                       ${Number(row.remaining).toFixed(2)}
                     </Typography>
                   </Box>
@@ -568,7 +638,7 @@ function BudgetPage() {
             </Box>
           </Box>
 
-          {/* TRANSACTIONS */}
+          {/* ── TRANSACTIONS ── */}
           <Box sx={cardStyle}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2, gap: 2, flexWrap: "wrap" }}>
               <Typography variant="h6" align="center" sx={{ flex: 1 }}>Transactions</Typography>
@@ -582,18 +652,22 @@ function BudgetPage() {
               )}
             </Box>
 
+            {/* Horizontal scroll wrapper keeps table usable on all screen sizes */}
             <Box sx={{ overflowX: "auto" }}>
-              <Box sx={{ ...rowGrid, px: 2, py: 1.5, borderBottom: `2px solid ${headerBorderColor}`, minWidth: 900 }}>
-                <Typography sx={sortHeaderStyle("id")} onClick={() => toggleSort("id")}>Transaction ID</Typography>
-                <Typography sx={sortHeaderStyle("date")} onClick={() => toggleSort("date")}>Date</Typography>
-                <Typography sx={sortHeaderStyle("item")} onClick={() => toggleSort("item")}>Item</Typography>
+
+              {/* Header row — hidden on mobile since columns stack */}
+              <Box sx={{ ...rowGrid, px: 2, py: 1.5, borderBottom: `2px solid ${headerBorderColor}`, display: { xs: "none", md: "grid" } }}>
+                <Typography sx={sortHeaderStyle("id")}       onClick={() => toggleSort("id")}>Transaction ID</Typography>
+                <Typography sx={sortHeaderStyle("date")}     onClick={() => toggleSort("date")}>Date</Typography>
+                <Typography sx={sortHeaderStyle("item")}     onClick={() => toggleSort("item")}>Item</Typography>
                 <Typography sx={sortHeaderStyle("category")} onClick={() => toggleSort("category")}>Category</Typography>
-                <Typography sx={sortHeaderStyle("amount")} onClick={() => toggleSort("amount")}>Amount</Typography>
+                <Typography sx={sortHeaderStyle("amount")}   onClick={() => toggleSort("amount")}>Amount</Typography>
                 <Typography fontWeight={700} sx={{ color: theme.palette.text.primary }}>Actions</Typography>
               </Box>
 
+              {/* New transaction row */}
               {addingNew && (
-                <Box sx={{ ...rowGrid, minWidth: 900, mt: 1.5, px: 2, py: 2, ...newRowStyle }}>
+                <Box sx={{ ...rowGrid, mt: 1.5, px: 2, py: 2, ...newRowStyle }}>
                   <Typography sx={{ color: theme.palette.text.secondary, fontSize: "0.85rem" }}>New</Typography>
                   <TextField type="date" size="small" value={newDraft.date} onChange={(e) => setNewDraft((prev) => ({ ...prev, date: e.target.value }))} InputLabelProps={{ shrink: true }} />
                   <TextField size="small" placeholder="Item name" value={newDraft.item} onChange={(e) => setNewDraft((prev) => ({ ...prev, item: e.target.value }))} />
@@ -605,6 +679,7 @@ function BudgetPage() {
                 </Box>
               )}
 
+              {/* Transaction list */}
               <Box sx={{ mt: 1.5 }}>
                 {sortedTransactions.length === 0 && !addingNew && (
                   <Typography sx={{ px: 2, py: 3, opacity: 0.7, color: theme.palette.text.secondary }}>
@@ -615,8 +690,9 @@ function BudgetPage() {
                 {sortedTransactions.map((t) => {
                   const isEditing = editingId === t.id;
                   return (
-                    <Box key={t.id} sx={{ ...rowGrid, minWidth: 900, px: 2, py: 2, mb: 1.25, ...rowStyle }}>
+                    <Box key={t.id} sx={{ ...rowGrid, px: 2, py: 2, mb: 1.25, ...rowStyle }}>
                       <Typography sx={{ color: theme.palette.text.primary }}>{t.id}</Typography>
+
                       {isEditing ? (
                         <>
                           <TextField type="date" size="small" value={editDraft.date} onChange={(e) => setEditDraft((prev) => ({ ...prev, date: e.target.value }))} InputLabelProps={{ shrink: true }} />
