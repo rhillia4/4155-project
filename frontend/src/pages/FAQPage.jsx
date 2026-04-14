@@ -57,6 +57,52 @@ function FAQPage() {
         </AccordionDetails>
       </Accordion>
 
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>How do I create a budget?</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            By clicking on the "Create Budget" button located in the Budget Page.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Can I adjust my income after creating a budget?</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Yes, you can adjust your income by going to the Budget Page and clicking the "Edit Income" button.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>How is my budget calculated?</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Your budget is calculated by subtracting your total expenses from your set monthly limit.
+            It updates as you log new transactions across your categories
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Can I change my transaction details after entering them?</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Yes, you can edit transaction details in the Budget Page by scrolling down to the Transactions
+            section and clicking the "Edit" button next to the transaction you want to modify.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="body2">

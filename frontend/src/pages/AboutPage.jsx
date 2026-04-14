@@ -14,9 +14,11 @@ function AboutPage() {
             Overview
           </Typography>
           <Typography variant="body1">
-            This platform helps you manage and analyze investment portfolios in
-            real time. You can create portfolios, track holdings, view
-            performance graphs, and monitor transactions.
+            This platform provides a comprehensive solution for managing both personal finances
+            and investment portfolios in real time. By bridging the gap between daily budgeting
+            and long-term wealth building, it helps you stay on top of your financial goals by
+            tracking holdings and providing a clear view of your overall financial health.
+
           </Typography>
         </CardContent>
       </Card>
@@ -34,6 +36,12 @@ function AboutPage() {
             • View performance snapshots and graphs
             <br />
             • Monitor transactions per portfolio
+            <br />
+            • Categorized Spending Overviews
+            <br />
+            • Expense Tracking & Analysis
+            <br />
+            • Live Budget Visualization
           </Typography>
         </CardContent>
       </Card>
