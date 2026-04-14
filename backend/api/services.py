@@ -82,9 +82,10 @@ def create_sod_snapshots():
 
     # Subquery to get latest price per asset
     latest_price_subquery = StockPrice.objects.filter(
-        symbol=OuterRef("asset__symbol")
+        symbol=OuterRef("asset__symbol"),
+        date__lte=now
     ).order_by("-date").values("price")[:1]
-
+    
     # Annotate holdings with latest price
     holdings = Holding.objects.select_related("portfolio", "asset").annotate(
         latest_price=Subquery(latest_price_subquery)

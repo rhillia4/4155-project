@@ -20,20 +20,22 @@ function StockIncomeGraph({ snapshots, holdings, isDashboard = false}) {
 
         const currentValue = (holdings || []).reduce((sum, h) => sum + h.value, 0);
 
-        if (
-          new Date(sortedSnapshots[0].timestamp).toLocaleDateString() ===
-          new Date().toLocaleDateString()
-        ) {
-          values[0] = currentValue;
+        const lastIndex = sortedSnapshots.length - 1;
+        const lastDate = new Date(sortedSnapshots[lastIndex].timestamp).toLocaleDateString();
+        const today = new Date().toLocaleDateString();
+
+        if (lastDate === today) {
+          // overwrite today's snapshot
+          values[lastIndex] = currentValue;
         } else {
-          values.unshift(currentValue);
-          dates.unshift(new Date().toLocaleDateString());
+          // append current value to the end
+          values.push(currentValue);
+          dates.push(today);
         }
 
         setXAxisData(dates);
         setSeriesData(values);
 
-        console.log("Processed snapshots:", { dates, values });
 
       } else if (holdings && holdings.length > 0) {
         const currentValue = holdings.reduce((sum, h) => sum + h.value, 0);
