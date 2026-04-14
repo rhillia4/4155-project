@@ -35,7 +35,7 @@ function StockIncomeGraph({ snapshots, holdings, isDashboard = false}) {
 
     return (
     <Paper sx={{ p: 2, height: "100%", display: 'flex', flexDirection: 'column' }}>
-      <Typography variant={isDashboard ? "subtitle2" : "h6"} sx={{ mb: isDashboard ? 0.5 : 2, fontWeight: 500 }}>
+      <Typography variant="h6" sx={{ mb: isDashboard ? 0.5 : 2, fontWeight: 500 }}>
         Portfolio History
       </Typography>
 
