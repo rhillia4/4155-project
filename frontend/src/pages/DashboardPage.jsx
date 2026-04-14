@@ -153,8 +153,9 @@ function DashboardPage() {
       sx={{
         p: 2,
         display: "flex",
+        flexDirection: { xs: "column", md: "row" },
         gap: 2,
-        height: "100%",
+        height: { xs: "auto", md: "100%" },
         overflow: "hidden",
         boxSizing: "border-box",
       }}
@@ -167,7 +168,9 @@ function DashboardPage() {
           flexDirection: "column",
           gap: 2,
           minWidth: 0,
+          width: "100%",
           overflow: "hidden",
+          minHeight: { xs: "600px", md: "0" }
         }}
       >
         {/* Spending Breakdown */}
@@ -234,7 +237,7 @@ function DashboardPage() {
       </Box>
  
       {/* RIGHT SIDE */}
-      <Box sx={{ ...cardStyle, flex: 1, minWidth: 0 }}>
+      <Box sx={{ ...cardStyle, flex: 1, minWidth: 0 , width: "100%" , minHeight: { xs: "500px", md: "0" }}}>
  
         {/* RESERVED AREA FOR PORTFOLIO IMPLEMENTATION */}
 
