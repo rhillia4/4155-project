@@ -67,10 +67,14 @@ function PortfolioPage() {
       try {
         const enriched = await Promise.all(
           portfolios.map(async (p) => {
+            console.log(`Loading data for portfolio ${p.id} - ${p.name}`);
             const [holdings, snapshots] = await Promise.all([
               getHoldings(p.id),
               getPortfolioSnapshotDetails(p.id),
             ]);
+            console.log(`Loaded holdings for portfolio ${p.id}:`, holdings);
+            console.log(`Loaded snapshots for portfolio ${p.id}:`, snapshots);
+
 
             return {
               ...p,
