@@ -74,8 +74,8 @@ function PortfolioPage() {
 
             return {
               ...p,
-              holdings,
-              snapshots,
+              holdings: structuredClone(holdings),
+              snapshots: structuredClone(snapshots),
             };
           })
         );
@@ -163,7 +163,7 @@ function PortfolioPage() {
             >
               <Card sx={{ width: '100%', height: '100%' }}>
                 <CardActionArea
-                  onClick={() => setPortfolio(p)}
+                  onClick={() => setPortfolio(structuredClone(p))}
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
