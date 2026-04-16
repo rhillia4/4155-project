@@ -37,6 +37,7 @@ function PortfolioPage() {
   const navigate = useNavigate();
 
   const handleClose = () => {
+    setPortfolios([]);
     setOpen(false);
     window.location.reload();
     };
@@ -78,6 +79,7 @@ function PortfolioPage() {
             };
           })
         );
+        console.log('Enriched portfolios:', enriched);
         setEnrichedPortfolios(enriched);
       } catch (err) {
         setError(err.message || 'Failed to load portfolio data');

@@ -35,8 +35,8 @@ function PortfolioHeader({ holdings }) {
         <Typography variant="h6">{stats.positions}</Typography>
       </Paper></Grid>
       <Grid ><Paper sx={cardStyle}>
-        <Typography variant="caption" color="textSecondary">ROI</Typography>
-        <Typography variant="h6">{parseFloat(stats.roi).toFixed(2)}%</Typography>
+        <Typography variant="caption" color="textSecondary">Total Gain/Loss</Typography>
+        <Typography variant="h6">${parseFloat(stats.roi).toFixed(2)}</Typography>
       </Paper></Grid>
     </Grid>
   );
