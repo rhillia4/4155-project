@@ -76,7 +76,10 @@ class PortfolioSnapshotListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return PortfolioSnapshot.objects.filter(portfolio__user=self.request.user).order_by("-timestamp")
+        return PortfolioSnapshot.objects.filter(
+            portfolio__user=self.request.user,
+            portfolio__id=self.kwargs["portfolio_id"]
+            ).order_by("-timestamp")
 
 
 # --- Holdings ---
