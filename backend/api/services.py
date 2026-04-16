@@ -78,20 +78,19 @@ def apply_transaction(*, portfolio: Portfolio, asset: Asset, tx_type: str, trans
 
 @transaction.atomic
 def create_sod_snapshots():
+    now = timezone.now()  # ✅ move this up
+
     portfolios = Portfolio.objects.select_for_update().all()
 
-    # Subquery to get latest price per asset
     latest_price_subquery = StockPrice.objects.filter(
         symbol=OuterRef("asset__symbol"),
         date__lte=now
     ).order_by("-date").values("price")[:1]
-    
-    # Annotate holdings with latest price
+
     holdings = Holding.objects.select_related("portfolio", "asset").annotate(
         latest_price=Subquery(latest_price_subquery)
     )
 
-    # Aggregate per portfolio
     portfolio_values = {}
 
     for h in holdings:
@@ -103,10 +102,7 @@ def create_sod_snapshots():
         portfolio_values.setdefault(h.portfolio_id, Decimal("0"))
         portfolio_values[h.portfolio_id] += value
 
-    # Update portfolios + snapshots
     snapshots = []
-    now = timezone.now() 
-    print("Computed timestamp:", now)
 
     for portfolio in portfolios:
         total_value = portfolio_values.get(portfolio.id, Decimal("0"))
